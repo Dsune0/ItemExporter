@@ -51,7 +51,7 @@ local function DrawContent(container, contentData, contentType)
         end
     elseif contentType == "dungeons" then
         local dungeonGroup = CreateGroup()
-        dungeonGroup:AddChild(CreateLabel("Dungeons"))
+        dungeonGroup:AddChild(CreateLabel(DUNGEONS))
 
         for _, dungeon in pairs(contentData) do
             local checkbox = CreateCheckbox(dungeon.instanceName)
@@ -91,11 +91,11 @@ local function CreateDropdowns(classDropdown, specDropdown)
 	
     classDropdown:SetList(classDropdownValues)
     classDropdown:SetValue(currentClassID)
-    classDropdown:SetLabel("Class")
+    classDropdown:SetLabel(CLASS)
     
     specDropdown:SetList(specializations)
 	specDropdown:SetValue(currentSpecID)
-    specDropdown:SetLabel("Specialization")
+    specDropdown:SetLabel(SPECIALIZATION)
     
 	classDropdown:SetCallback("OnValueChanged", function(widget, event, key)
         local selectedClass = ItemExporter:GetClassNameByID(key)
@@ -136,7 +136,7 @@ end
 
 local function CreateItemLevelSlider()
     local slider = AceGUI:Create("Slider")
-    slider:SetLabel("Item Level")
+    slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
     slider:SetSliderValues(402, 450, 1)
     slider:SetValue(447)
 	slider:SetCallback("OnValueChanged", function(self, event, value)
@@ -152,9 +152,9 @@ local function CreateTabGroup(raids, dungeons)
     tabGroup:SetFullHeight(true)
     tabGroup:SetLayout("Flow")
     tabGroup:SetTabs({
-        {text = "All", value = "all"}, 
-        {text = "Raids", value = "raids"}, 
-        {text = "Dungeons", value = "dungeons"},
+        {text = ALL, value = "all"}, 
+        {text = RAIDS, value = "raids"}, 
+        {text = DUNGEONS, value = "dungeons"},
     })
 		
     tabGroup:SetCallback("OnGroupSelected", function(container, event, group)
