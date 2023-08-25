@@ -25,7 +25,6 @@ local dataObj = LDB:NewDataObject("ItemExporter", {
     text = "ItemExporter",
     icon = "134332",
     OnClick = function()
-		DevTool:AddData(ItemExporter,"itemexport")
         ItemExporter:ToggleGUI()
     end,
     OnTooltipShow = function(tooltip)
