@@ -1,21 +1,28 @@
 local _, ItemExporter = ...
 
-ItemExporter.Classes = {
-	[0] = "All",
-    [1] = "Warrior",
-    [2] = "Paladin",
-    [3] = "Hunter",
-    [4] = "Rogue",
-    [5] = "Priest",
-    [6] = "Death Knight",
-    [7] = "Shaman",
-    [8] = "Mage",
-    [9] = "Warlock",
-    [10] = "Monk",
-    [11] = "Druid",
-    [12] = "Demon Hunter",
-    [13] = "Evoker"
+
+local classLootIndex = {
+    [1] = "WARRIOR",
+    [2] = "PALADIN",
+    [3] = "HUNTER",
+    [4] = "ROGUE",
+    [5] = "PRIEST",
+    [6] = "DEATHKNIGHT",
+    [7] = "SHAMAN",
+    [8] = "MAGE",
+    [9] = "WARLOCK",
+    [10] = "MONK",
+    [11] = "DRUID",
+    [12] = "DEMONHUNTER",
+    [13] = "EVOKER"
 }
+
+ItemExporter.Classes = {}
+ItemExporter.Classes[0] = ALL
+
+for key, classKey in pairs(classLootIndex) do
+    ItemExporter.Classes[key] = LOCALIZED_CLASS_NAMES_MALE[classKey]
+end
 
 ItemExporter.Specializations = {
     ["Death Knight"] = {
