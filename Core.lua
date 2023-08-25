@@ -1,6 +1,6 @@
 local _, ItemExporter = ...
 
-ItemExporter = LibStub("AceAddon-3.0"):NewAddon("ItemExporter", "AceConsole-3.0", "AceEvent-3.0")
+ItemExporter = LibStub("AceAddon-3.0"):NewAddon(ItemExporter, "ItemExporter", "AceConsole-3.0", "AceEvent-3.0")
 
 local LDB = LibStub("LibDataBroker-1.1")
 local icon = LibStub("LibDBIcon-1.0")
