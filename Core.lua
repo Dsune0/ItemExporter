@@ -94,8 +94,6 @@ function ItemExporter:GetLatestContentInfo()
         table.insert(dungeons, {instanceName = name, instanceID = instanceID, icon = icon})
         index = index + 1
     end
-	DevTool:AddData(raids, "raids")
-	DevTool:AddData(dungeons, "dungeons")
 	ItemExporter:ReEnableEJ()
     return raids, dungeons
 end
