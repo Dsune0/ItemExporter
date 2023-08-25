@@ -84,19 +84,8 @@ local function CreateDropdowns(classDropdown, specDropdown)
     local classDropdownValues = ItemExporter.Classes
     local currentClassID = ItemExporter:GetCurrentClass()
     local currentClass = ItemExporter:GetClassNameByID(currentClassID)
-    
-    -- Convert spec IDs to localized names
-    local function GetLocalizedSpecializations(class)
-        local specIDs = ItemExporter:GetSpecializationsByClass(class)
-        local localizedSpecs = {}
-        for _, specID in pairs(specIDs) do
-            localizedSpecs[specID] = GetSpecializationNameForSpecID(specID)
-        end
-        return localizedSpecs
-    end
-
-    local specializations = GetLocalizedSpecializations(currentClass)
-	local currentSpecID = ItemExporter:GetCurrentSpecialization()
+    local specializations = ItemExporter:GetSpecializationsByClass(currentClass)
+	 	local currentSpecID = ItemExporter:GetCurrentSpecialization()
     
 	ClassSpecInfo = {classID = currentClassID, specID = currentSpecID}
 	
@@ -112,8 +101,8 @@ local function CreateDropdowns(classDropdown, specDropdown)
         local selectedClass = ItemExporter:GetClassNameByID(key)
         if selectedClass and selectedClass ~= "All" then
 			ClassSpecInfo.classID = key
-            local updatedSpecializations = GetLocalizedSpecializations(selectedClass)
-            specDropdown:SetList(updatedSpecializations)
+			            local updatedSpecializations = ItemExporter:GetSpecializationsByClass(selectedClass)
+						            specDropdown:SetList(updatedSpecializations)
             specDropdown:SetValue(0)
             specDropdown:SetDisabled(false)
 			ClassSpecInfo.specID = 0
@@ -130,6 +119,7 @@ local function CreateDropdowns(classDropdown, specDropdown)
 			ClassSpecInfo.specID = key
 		end
     end)
+	
 end
 
 
@@ -327,6 +317,7 @@ function ItemExporter:ToggleGUI()
 		tabGroup:SelectTab("all")
 		
 		self.frame.frame:SetResizeBounds(500, 785)
+		self.frame.frame:SetClampedToScreen(true)
         self.frame.frame:SetScript("OnKeyDown", function(self, key)
             if key == "ESCAPE" then
                 self:Hide()
