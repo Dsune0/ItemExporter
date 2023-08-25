@@ -1,5 +1,5 @@
 local _, ItemExporter = ...
-
+local L = ItemExporter.L
 local AceGUI = LibStub("AceGUI-3.0")
 
 local armorCheckboxes, instanceCheckboxes = {}, {}
@@ -84,7 +84,18 @@ local function CreateDropdowns(classDropdown, specDropdown)
     local classDropdownValues = ItemExporter.Classes
     local currentClassID = ItemExporter:GetCurrentClass()
     local currentClass = ItemExporter:GetClassNameByID(currentClassID)
-    local specializations = ItemExporter:GetSpecializationsByClass(currentClass)
+    
+    -- Convert spec IDs to localized names
+    local function GetLocalizedSpecializations(class)
+        local specIDs = ItemExporter:GetSpecializationsByClass(class)
+        local localizedSpecs = {}
+        for _, specID in pairs(specIDs) do
+            localizedSpecs[specID] = GetSpecializationNameForSpecID(specID)
+        end
+        return localizedSpecs
+    end
+
+    local specializations = GetLocalizedSpecializations(currentClass)
 	local currentSpecID = ItemExporter:GetCurrentSpecialization()
     
 	ClassSpecInfo = {classID = currentClassID, specID = currentSpecID}
@@ -101,7 +112,7 @@ local function CreateDropdowns(classDropdown, specDropdown)
         local selectedClass = ItemExporter:GetClassNameByID(key)
         if selectedClass and selectedClass ~= "All" then
 			ClassSpecInfo.classID = key
-            local updatedSpecializations = ItemExporter:GetSpecializationsByClass(selectedClass)
+            local updatedSpecializations = GetLocalizedSpecializations(selectedClass)
             specDropdown:SetList(updatedSpecializations)
             specDropdown:SetValue(0)
             specDropdown:SetDisabled(false)
@@ -119,8 +130,8 @@ local function CreateDropdowns(classDropdown, specDropdown)
 			ClassSpecInfo.specID = key
 		end
     end)
-	
 end
+
 
 local function DrawArmorTypes(container)
 	armorCheckboxes = {}
@@ -131,7 +142,7 @@ local function DrawArmorTypes(container)
         container:AddChild(checkbox)
         table.insert(armorCheckboxes, checkbox)
     end
-	CreateToggleAllButton(container, "Toggle All Armortypes", armorCheckboxes)
+	CreateToggleAllButton(container, L["Toggle all armortypes"], armorCheckboxes)
 end
 
 local function CreateItemLevelSlider()
@@ -170,7 +181,7 @@ local function CreateTabGroup(raids, dungeons)
         elseif group == "dungeons" then
             DrawContent(container, dungeons, "dungeons")
         end
-		CreateToggleAllButton(container, "Toggle All Instances", instanceCheckboxes)
+		CreateToggleAllButton(container, L["Toggle all Instances"], instanceCheckboxes)
     end)
 
     return tabGroup
@@ -290,8 +301,8 @@ function ItemExporter:ToggleGUI()
     if not self.frame then
         local raids, dungeons = self:GetLatestContentInfo()
         self.frame = AceGUI:Create("Frame")
-        self.frame:SetTitle("ItemExporter")
-        self.frame:SetStatusText("Export items to SimulationCraft")
+        self.frame:SetTitle(L["ItemExporter"])
+        self.frame:SetStatusText(L["Export itemstrings to SimulationCraft format"])
         self.frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) self.frame = nil end)
         self.frame:SetWidth(645)
         self.frame:SetHeight(785)
@@ -302,7 +313,7 @@ function ItemExporter:ToggleGUI()
         CreateDropdowns(classDropdown, specDropdown)
 		
         local exportButton = AceGUI:Create("Button")
-        exportButton:SetText("Export")
+        exportButton:SetText(L["Export"])
         exportButton:SetWidth(200)
         exportButton:SetCallback("OnClick", ExportButton)
 		
@@ -314,7 +325,7 @@ function ItemExporter:ToggleGUI()
 		DrawArmorTypes(self.frame)
 		self.frame:AddChild(tabGroup)	
 		tabGroup:SelectTab("all")
-        
+		
 		self.frame.frame:SetResizeBounds(500, 785)
         self.frame.frame:SetScript("OnKeyDown", function(self, key)
             if key == "ESCAPE" then

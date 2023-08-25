@@ -5,6 +5,7 @@ ItemExporter = LibStub("AceAddon-3.0"):NewAddon(ItemExporter, "ItemExporter", "A
 local LDB = LibStub("LibDataBroker-1.1")
 local icon = LibStub("LibDBIcon-1.0")
 local AceEvent = LibStub("AceEvent-3.0")
+local L = ItemExporter.L
 
 ItemExporter.db = LibStub("AceDB-3.0"):New("ItemExporterDB", {
     profile = {
@@ -22,13 +23,13 @@ end
 -- Minimap button
 local dataObj = LDB:NewDataObject("ItemExporter", {
     type = "data source",
-    text = "ItemExporter",
+    text = L["ItemExporter"],
     icon = "134332",
     OnClick = function()
         ItemExporter:ToggleGUI()
     end,
     OnTooltipShow = function(tooltip)
-        tooltip:SetText("ItemExporter")
+        tooltip:SetText(L["ItemExporter"])
     end,
 })
 
