@@ -1,4 +1,4 @@
-ItemExporter = ItemExporter or {}
+local _, ItemExporter = ...
 
 ItemExporter.armorTypes = {
     'Head',

@@ -1,24 +1,10 @@
-_, ItemExporter = ...
+local _, ItemExporter = ...
 
 ItemExporter = LibStub("AceAddon-3.0"):NewAddon("ItemExporter", "AceConsole-3.0", "AceEvent-3.0")
 
 local LDB = LibStub("LibDataBroker-1.1")
 local icon = LibStub("LibDBIcon-1.0")
 local AceEvent = LibStub("AceEvent-3.0")
-
--- Minimap button
-local dataObj = LDB:NewDataObject("ItemExporter", {
-    type = "data source",
-    text = "ItemExporter",
-    icon = "134332",
-    OnClick = function()
-        ItemExporter:ToggleGUI()
-    end,
-    OnTooltipShow = function(tooltip)
-        tooltip:SetText("ItemExporter")
-    end,
-})
-
 
 ItemExporter.db = LibStub("AceDB-3.0"):New("ItemExporterDB", {
     profile = {
@@ -28,14 +14,26 @@ ItemExporter.db = LibStub("AceDB-3.0"):New("ItemExporterDB", {
     },
 })
 
-icon:Register("ItemExporter", dataObj, ItemExporter.db.profile.minimap)
-
-
 -- Slash command
 function ItemExporter:OnInitialize()
     self:RegisterChatCommand("itemexport", "ToggleGUI")
 end
 
+-- Minimap button
+local dataObj = LDB:NewDataObject("ItemExporter", {
+    type = "data source",
+    text = "ItemExporter",
+    icon = "134332",
+    OnClick = function()
+		DevTool:AddData(ItemExporter,"itemexport")
+        ItemExporter:ToggleGUI()
+    end,
+    OnTooltipShow = function(tooltip)
+        tooltip:SetText("ItemExporter")
+    end,
+})
+
+icon:Register("ItemExporter", dataObj, ItemExporter.db.profile.minimap)
 
 function ItemExporter:ReEnableEJ()
   EncounterJournal:RegisterEvent("EJ_LOOT_DATA_RECIEVED");

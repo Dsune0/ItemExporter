@@ -14,7 +14,7 @@ libs\Ace3\AceEvent-3.0\AceEvent-3.0.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 libs\Ace3\AceDB-3.0\AceDB-3.0.lua
 
-Core.lua
 Specializations.lua
 ItemParser.lua
 GUI.lua
+Core.lua

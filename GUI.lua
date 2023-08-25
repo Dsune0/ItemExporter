@@ -1,6 +1,7 @@
+local _, ItemExporter = ...
+
 local AceGUI = LibStub("AceGUI-3.0")
 
-ItemExporter = ItemExporter or {}
 local armorCheckboxes, instanceCheckboxes = {}, {}
 local armorTypes = ItemExporter.armorTypes
 local ClassSpecInfo = {}
