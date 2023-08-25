@@ -32,8 +32,10 @@ local dataObj = LDB:NewDataObject("ItemExporter", {
     end,
 })
 
+--register minimap button
 icon:Register("ItemExporter", dataObj, ItemExporter.db.profile.minimap)
 
+-- reenable EJ events
 function ItemExporter:ReEnableEJ()
   EncounterJournal:RegisterEvent("EJ_LOOT_DATA_RECIEVED");
   EncounterJournal:RegisterEvent("EJ_DIFFICULTY_UPDATE");
@@ -42,6 +44,8 @@ function ItemExporter:ReEnableEJ()
   EncounterJournal:RegisterEvent("SEARCH_DB_LOADED");
   EncounterJournal:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED");
 end
+
+--disable EJ events to prevent taint
 function ItemExporter:DisableEJ()
   EncounterJournal:UnregisterEvent("EJ_LOOT_DATA_RECIEVED");
   EncounterJournal:UnregisterEvent("EJ_DIFFICULTY_UPDATE");
@@ -72,7 +76,7 @@ function ItemExporter:GetLatestContentInfo()
 			local bossIndex = 1
             while true do
                 local bossName, _, encounterID = EJ_GetEncounterInfoByIndex(bossIndex)
-                if not bossName then break end
+                if not bossName then break end		
                 table.insert(bosses, {name = bossName, encounterID = encounterID})
                 bossIndex = bossIndex + 1
             end
