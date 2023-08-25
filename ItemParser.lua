@@ -1,20 +1,22 @@
 local _, ItemExporter = ...
 
+
+
 ItemExporter.armorTypes = {
-    'Head',
-    'Neck',
-    'Shoulder',
-    'Back',
-    'Chest',
-    'Wrist',
-    'Hands',
-    'Waist',
-    'Legs',
-    'Feet',
-    'Main Hand',
-    'Off hand',
-    'Ring',
-    'Trinket'
+    INVTYPE_HEAD,
+    INVTYPE_NECK,
+    INVTYPE_SHOULDER,
+    INVTYPE_CLOAK,
+	INVTYPE_CHEST,
+    INVTYPE_WRIST,
+    INVTYPE_HAND,
+    INVTYPE_WAIST,
+    INVTYPE_LEGS,
+    INVTYPE_FEET,
+	INVTYPE_WEAPONMAINHAND,
+    INVTYPE_WEAPONOFFHAND,
+    INVTYPE_FINGER,
+    INVTYPE_TRINKET,
 }
 
 
