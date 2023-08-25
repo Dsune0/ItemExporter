@@ -73,9 +73,7 @@ function ItemExporter:GetLatestContentInfo()
             while true do
                 local bossName, _, encounterID = EJ_GetEncounterInfoByIndex(bossIndex)
                 if not bossName then break end
-                EJ_SelectEncounter(encounterID)
-                local _, _, _, _, iconImage = EJ_GetCreatureInfo(1)
-                table.insert(bosses, {name = bossName, encounterID = encounterID, icon = iconImage})
+                table.insert(bosses, {name = bossName, encounterID = encounterID})
                 bossIndex = bossIndex + 1
             end
             table.insert(raids, {instanceName = name, instanceID = instanceID, bosses = bosses})
@@ -86,9 +84,9 @@ function ItemExporter:GetLatestContentInfo()
     -- Collcet mythic+ dungeons
     index = 1
     while true do
-        local instanceID, name, _, _, icon = EJ_GetInstanceByIndex(index, false)
+        local instanceID, name = EJ_GetInstanceByIndex(index, false)
         if not instanceID then break end
-        table.insert(dungeons, {instanceName = name, instanceID = instanceID, icon = icon})
+        table.insert(dungeons, {instanceName = name, instanceID = instanceID})
         index = index + 1
     end
 	ItemExporter:ReEnableEJ()
