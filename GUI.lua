@@ -293,9 +293,8 @@ function ItemExporter:ToggleGUI()
         self.frame:SetTitle("ItemExporter")
         self.frame:SetStatusText("Export items to SimulationCraft")
         self.frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) self.frame = nil end)
-		self.frame:SetCallback("OnEscapePressed", function(widget) AceGUI:Release(widget) self.frame = nil end)
         self.frame:SetWidth(645)
-        self.frame:SetHeight(745)
+        self.frame:SetHeight(785)
         self.frame:SetLayout("Flow")
 
         local classDropdown = AceGUI:Create("Dropdown")
@@ -313,9 +312,15 @@ function ItemExporter:ToggleGUI()
 		self.frame:AddChild(specDropdown)
 		self.frame:AddChild(exportButton)
 		DrawArmorTypes(self.frame)
-		self.frame:AddChild(tabGroup)
+		self.frame:AddChild(tabGroup)	
 		tabGroup:SelectTab("all")
         
+		self.frame.frame:SetResizeBounds(500, 785)
+        self.frame.frame:SetScript("OnKeyDown", function(self, key)
+            if key == "ESCAPE" then
+                self:Hide()
+            end
+        end)
     else
         AceGUI:Release(self.frame)
         self.frame = nil
