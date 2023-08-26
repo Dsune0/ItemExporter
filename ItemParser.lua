@@ -1,7 +1,6 @@
 local _, ItemExporter = ...
 
-
-
+-- localized armorTypes
 ItemExporter.armorTypes = {
 	INVTYPE_HEAD,
 	INVTYPE_NECK,
@@ -19,7 +18,7 @@ ItemExporter.armorTypes = {
 	INVTYPE_TRINKET,
 }
 
-
+-- filterTypes for SimulationCraft
 local filterTypes = {
 	[0] = 'head',
 	[1] = 'neck',
@@ -37,6 +36,7 @@ local filterTypes = {
 	[13] = 'trinket1',
 }
 
+-- invType with filterType
 local invType = {
 	INVTYPE_HEAD = 0,
 	INVTYPE_NECK = 1,
@@ -60,7 +60,7 @@ local invType = {
 	INVTYPE_TRINKET = 13,
 }
 
-
+-- specs that can dual wield weapons
 local CanDualWield = {
 	[72] = true,
 	[251] = true,
@@ -73,8 +73,34 @@ local CanDualWield = {
 	[263] = true
 }
 
-
-
+-- helper functions
+local function AddItemData(lootInfo)
+	if lootInfo and lootInfo.itemID then
+		local item = Item:CreateFromItemID(lootInfo.itemID)
+		item:ContinueOnItemLoad(function()
+				itemsLoadedCount = itemsLoadedCount + 1
+				local itemName, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(lootInfo.itemID)
+				local itemType = invType[itemEquipLoc]
+				if itemType and IsEquippableItem(lootInfo.itemID) and selectedArmorTypes[itemType] then
+					table.insert(itemData, {
+							name = itemName,
+							filterType = filterTypes[itemType],
+							itemID = lootInfo.itemID,
+					})
+					if itemType == 10 and (specID == 0 or CanDualWield[specID]) then
+						table.insert(itemData, {
+								name = itemName,
+								filterType = filterTypes[itemType+1],
+								itemID = lootInfo.itemID,
+						})
+					end
+				end
+				if itemsLoadedCount == itemCount then
+					ItemExporter:SortItems(itemData)
+				end
+		end)
+	end
+end
 
 local function CreateItemStrings(itemData)
 	local items = {}
@@ -82,7 +108,6 @@ local function CreateItemStrings(itemData)
 		table.insert(items, "# " .. item.name)
 		table.insert(items, "# " .. item.filterType .. "=,id=" .. item.itemID .. ",bonus_id=4795" .. ",ilevel=" .. ItemExporter.selectedItemLevel .. "\n")
 	end
-	
 	local text = table.concat(items, "\n")
 	ItemExporter:GetMainFrame(text):Show()
 end
@@ -104,84 +129,53 @@ function ItemExporter:SortItems(itemData)
 	CreateItemStrings(itemData)
 end
 
+-- fetch itemIDs function
 function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)
-	ItemExporter:DisableEJ()
+	self:DisableEJ()
 	local itemData = {}
 	local itemCount = 0
 	local itemsLoadedCount = 0
 	local classFilter, specFilter = EJ_GetLootFilter()
 	local classID, specID = ClassSpecInfo.classID, ClassSpecInfo.specID
 	
-	-- add items
-	local function addItemData(lootInfo)
-		if lootInfo and lootInfo.itemID then
-			local item = Item:CreateFromItemID(lootInfo.itemID)
-			item:ContinueOnItemLoad(function()
-					itemsLoadedCount = itemsLoadedCount + 1
-					local itemName, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(lootInfo.itemID)
-					local itemType = invType[itemEquipLoc]
-					if itemType and IsEquippableItem(lootInfo.itemID) and selectedArmorTypes[itemType] then
-						table.insert(itemData, {
-								name = itemName,
-								filterType = filterTypes[itemType],
-								itemID = lootInfo.itemID,
-						})
-						if itemType == 10 and (specID == 0 or CanDualWield[specID]) then
-							table.insert(itemData, {
-									name = itemName,
-									filterType = filterTypes[itemType+1],
-									itemID = lootInfo.itemID,
-							})
-						end
-					end
-					if itemsLoadedCount == itemCount then
-						ItemExporter:SortItems(itemData)
-					end
-			end)
-		end
-	end
-	
-	-- dungeon items
+	-- Iterate dungeons
 	for _, instanceID in ipairs(selectedDungeons) do
 		EJ_SetLootFilter(classID, specID)
 		EJ_SelectInstance(instanceID)
 		EJ_SetDifficulty(8)
-		local numLoot = EJ_GetNumLoot()
-		itemCount = itemCount + numLoot
-		for i = 1, numLoot do
+		itemCount = itemCount + EJ_GetNumLoot()
+		for i = 1, EJ_GetNumLoot() do
 			local lootInfo = C_EncounterJournal.GetLootInfoByIndex(i)
-			addItemData(lootInfo)
+			addItemDataToTable(itemData, lootInfo)
 		end
 	end
 	
-	-- raid items
+	-- Iterate raid bosses
 	for instanceID, encounterIDs in pairs(selectedBosses) do
 		EJ_SelectInstance(instanceID)
-		EJ_SetLootFilter(classID, specID)
 		for _, encounterID in ipairs(encounterIDs) do
 			EJ_SelectEncounter(encounterID)
-			local numLoot = EJ_GetNumLoot()
-			itemCount = itemCount + numLoot
+			itemCount = itemCount + EJ_GetNumLoot()
 			for i = 1, EJ_GetNumLoot() do
 				local lootInfo = C_EncounterJournal.GetLootInfoByIndex(i)
-				addItemData(lootInfo)
+				addItemDataToTable(itemData, lootInfo)
 			end
 		end
 	end
 	
-	--tier items
+	-- Add tierset items
 	for _, setID in ipairs(selectedTierset) do
 		itemCount = itemCount + 9
 		for slot=1, 15, 1 do
 			for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
-				if key == 1 and itemInfo.itemID then
-					addItemData(itemInfo)
+				if key == 1 then
+					addItemDataToTable(itemData, itemInfo)
 				end
 			end
 		end
 	end
 	
 	EJ_SetLootFilter(classFilter, specFilter)
-	ItemExporter:ReEnableEJ()
+	self:ReEnableEJ()
 end
 
