@@ -2,12 +2,17 @@ local _, ItemExporter = ...
 local L = ItemExporter.L
 local AceGUI = LibStub("AceGUI-3.0")
 
-local armorCheckboxes, contentCheckboxes = {}, {}
+-- constants
 local armorTypes = ItemExporter.armorTypes
-local ClassSpecInfo = {}
-local firstRun
 ItemExporter.selectedItemLevel = 447
 
+-- locals
+local ClassSpecInfo = {classID = 0, specID = 0}
+local armorCheckboxes = {}
+local contentCheckboxes = {}
+local firstRun
+
+-- UI helper functions
 local function CreateCheckbox(name)
 	local checkbox = AceGUI:Create("CheckBox")
 	checkbox:SetLabel(name)
@@ -30,6 +35,75 @@ local function CreateGroup()
 	return group
 end
 
+local function CreateDropdowns(classDropdown, specDropdown)
+	local classDropdownValues = ItemExporter.Classes
+	local currentClassID = ItemExporter:GetCurrentClass()
+	local currentClass = ItemExporter:GetClassNameByID(currentClassID)
+	local specializations = ItemExporter:GetSpecializationsByClassID(currentClassID)
+	local currentSpecID = ItemExporter:GetCurrentSpecialization()
+	
+	ClassSpecInfo = {classID = currentClassID, specID = currentSpecID}
+	
+	classDropdown:SetList(classDropdownValues)
+	classDropdown:SetValue(currentClassID)
+	classDropdown:SetLabel(CLASS)
+	
+	specDropdown:SetList(specializations)
+	specDropdown:SetValue(currentSpecID)
+	specDropdown:SetLabel(SPECIALIZATION)
+	
+	classDropdown:SetCallback("OnValueChanged", function(widget, event, key)
+		if key and key ~= 0 then
+			ClassSpecInfo.classID = key
+			local updatedSpecializations = ItemExporter:GetSpecializationsByClassID(key)
+			specDropdown:SetList(updatedSpecializations)
+			specDropdown:SetValue(0)
+			specDropdown:SetDisabled(false)
+			ClassSpecInfo.specID = 0
+		else
+			ClassSpecInfo.classID = 0
+			ClassSpecInfo.specID = 0
+			specDropdown:SetDisabled(true)
+			specDropdown:SetValue(0)
+		end
+	end)
+	
+	specDropdown:SetCallback("OnValueChanged", function(widget, event, key)
+		if ClassSpecInfo.specID then
+			ClassSpecInfo.specID = key
+		end
+	end)
+end
+
+local function CreateItemLevelSlider()
+	local slider = AceGUI:Create("Slider")
+	slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
+	slider:SetSliderValues(402, 450, 1)
+	slider:SetValue(447)
+	slider:SetCallback("OnValueChanged", function(self, event, value)
+	ItemExporter.selectedItemLevel = value
+	end)
+	return slider
+end
+
+--checkbox toggling
+local function ToggleAllCheckboxes(checkboxes)
+	local newState = not checkboxes[1]:GetValue()
+	for _, checkbox in ipairs(checkboxes) do
+		checkbox:SetValue(newState)
+	end
+end
+
+-- checkbox creation
+local function CreateToggleAllButton(container, text, checkboxes)
+	local button = AceGUI:Create("Button")
+	button:SetText(text)
+	button:SetRelativeWidth(1)
+	button:SetCallback("OnClick", function() ToggleAllCheckboxes(checkboxes) end)
+	container:AddChild(button)
+end
+
+-- UI draw content functions
 local function DrawContent(container, contentData, contentType)
 	if not contentData then return end
 
@@ -73,61 +147,6 @@ local function DrawContent(container, contentData, contentType)
 	end
 end
 
-local function ToggleAllCheckboxes(checkboxes)
-	local newState = not checkboxes[1]:GetValue()
-	for _, checkbox in ipairs(checkboxes) do
-		checkbox:SetValue(newState)
-	end
-end
-
-local function CreateToggleAllButton(container, text, checkboxes)
-	local button = AceGUI:Create("Button")
-	button:SetText(text)
-	button:SetRelativeWidth(1)
-	button:SetCallback("OnClick", function() ToggleAllCheckboxes(checkboxes) end)
-	container:AddChild(button)
-end
-
-local function CreateDropdowns(classDropdown, specDropdown)
-	local classDropdownValues = ItemExporter.Classes
-	local currentClassID = ItemExporter:GetCurrentClass()
-	local currentClass = ItemExporter:GetClassNameByID(currentClassID)
-	local specializations = ItemExporter:GetSpecializationsByClassID(currentClassID)
-	local currentSpecID = ItemExporter:GetCurrentSpecialization()
-	
-	ClassSpecInfo = {classID = currentClassID, specID = currentSpecID}
-	
-	classDropdown:SetList(classDropdownValues)
-	classDropdown:SetValue(currentClassID)
-	classDropdown:SetLabel(CLASS)
-	
-	specDropdown:SetList(specializations)
-	specDropdown:SetValue(currentSpecID)
-	specDropdown:SetLabel(SPECIALIZATION)
-	
-	classDropdown:SetCallback("OnValueChanged", function(widget, event, key)
-		if key and key ~= 0 then
-			ClassSpecInfo.classID = key
-			local updatedSpecializations = ItemExporter:GetSpecializationsByClassID(key)
-			specDropdown:SetList(updatedSpecializations)
-			specDropdown:SetValue(0)
-			specDropdown:SetDisabled(false)
-			ClassSpecInfo.specID = 0
-		else
-			ClassSpecInfo.classID = 0
-			ClassSpecInfo.specID = 0
-			specDropdown:SetDisabled(true)
-			specDropdown:SetValue(0)
-		end
-	end)
-	
-	specDropdown:SetCallback("OnValueChanged", function(widget, event, key)
-		if ClassSpecInfo.specID then
-			ClassSpecInfo.specID = key
-		end
-	end)
-end
-
 local function DrawArmorTypes(container)
 	armorCheckboxes = {}
 	for i, armorType in ipairs(armorTypes) do
@@ -139,18 +158,6 @@ local function DrawArmorTypes(container)
 	end
 	CreateToggleAllButton(container, L["Toggle All"], armorCheckboxes)
 end
-
-local function CreateItemLevelSlider()
-	local slider = AceGUI:Create("Slider")
-	slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
-	slider:SetSliderValues(402, 450, 1)
-	slider:SetValue(447)
-	slider:SetCallback("OnValueChanged", function(self, event, value)
-	ItemExporter.selectedItemLevel = value
-	end)
-	return slider
-end
-
 
 local function CreateTabGroup(raids, dungeons, tierset)
 	local tabGroup = AceGUI:Create("TabGroup")
@@ -188,8 +195,7 @@ local function CreateTabGroup(raids, dungeons, tierset)
 	return tabGroup
 end
 
-
-
+-- editbox creation
 function ItemExporter:GetMainFrame(text)
 	--based on simulationcrafts editbox
   if not ItemExportFrame then
@@ -268,6 +274,7 @@ function ItemExporter:GetMainFrame(text)
   return ItemExportFrame
 end
 
+-- export button function
 local function ExportButton()
 	local selectedDungeons = {}
 	local selectedBosses = {}
@@ -308,7 +315,7 @@ local function ExportButton()
 	end
 end
 
-
+-- UI toggle function
 function ItemExporter:ToggleGUI()
 	if not self.frame then
 		local raids, dungeons, tierset = self:GetLatestContentInfo()
