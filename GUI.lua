@@ -84,8 +84,8 @@ local function CreateDropdowns(classDropdown, specDropdown)
     local classDropdownValues = ItemExporter.Classes
     local currentClassID = ItemExporter:GetCurrentClass()
     local currentClass = ItemExporter:GetClassNameByID(currentClassID)
-    local specializations = ItemExporter:GetSpecializationsByClass(currentClass)
-	 	local currentSpecID = ItemExporter:GetCurrentSpecialization()
+    local specializations = ItemExporter:GetSpecializationsByClass(currentClassID)
+	local currentSpecID = ItemExporter:GetCurrentSpecialization()
     
 	ClassSpecInfo = {classID = currentClassID, specID = currentSpecID}
 	
@@ -98,11 +98,10 @@ local function CreateDropdowns(classDropdown, specDropdown)
     specDropdown:SetLabel(SPECIALIZATION)
     
 	classDropdown:SetCallback("OnValueChanged", function(widget, event, key)
-        local selectedClass = ItemExporter:GetClassNameByID(key)
-        if selectedClass and selectedClass ~= "All" then
+		if key and key ~= 0 then
 			ClassSpecInfo.classID = key
-			            local updatedSpecializations = ItemExporter:GetSpecializationsByClass(selectedClass)
-						            specDropdown:SetList(updatedSpecializations)
+			local updatedSpecializations = ItemExporter.Specializations[key]
+			specDropdown:SetList(updatedSpecializations)
             specDropdown:SetValue(0)
             specDropdown:SetDisabled(false)
 			ClassSpecInfo.specID = 0
