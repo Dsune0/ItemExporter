@@ -107,6 +107,10 @@ function ItemExporter:GetLatestContentInfo()
 		end
 	end
 	
+	-- temporary dawn of the infinite
+	local name = EJ_GetInstanceInfo(1209)
+	table.insert(dungeons, {instanceName = name, instanceID = 1209})
+	
 	ItemExporter:ReEnableEJ()
 	return raids, dungeons, tierset
 end
