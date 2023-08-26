@@ -1,7 +1,7 @@
 local _, ItemExporter = ...
 
 ItemExporter.L = setmetatable({}, { __index = function(t, k)
-    return k
+	return k
 end })
 
 local L = ItemExporter.L
