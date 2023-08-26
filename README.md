@@ -1,3 +1,3 @@
 # ItemExporter
 Simple addon to export itemstrings to Simcraft format
-![image](https://github.com/Dsune0/ItemExporter/assets/106332935/a6cfbff4-13d1-446f-9875-0eb9107c120a)
+![image](https://github.com/Dsune0/ItemExporter/assets/106332935/85bcd262-86c9-479f-8886-b1bff2470cdd)
