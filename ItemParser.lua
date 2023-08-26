@@ -104,7 +104,7 @@ function ItemExporter:SortItems(itemData)
     CreateItemStrings(itemData)
 end
 
-function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes)
+function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)
     ItemExporter:DisableEJ()
     local itemData = {}
     local itemCount = 0
@@ -168,6 +168,18 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
             end
         end
     end
+	
+	--tier items
+	for _, setID in ipairs(selectedTierset) do
+		itemCount = itemCount + 9
+		for slot=1, 15, 1 do
+			for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
+				if key == 1 and itemInfo.itemID then
+					addItemData(itemInfo)
+				end
+			end
+		end
+	end
     
     EJ_SetLootFilter(classFilter, specFilter)
     ItemExporter:ReEnableEJ()
