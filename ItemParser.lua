@@ -74,34 +74,6 @@ local CanDualWield = {
 }
 
 -- helper functions
-local function AddItemData(lootInfo)
-	if lootInfo and lootInfo.itemID then
-		local item = Item:CreateFromItemID(lootInfo.itemID)
-		item:ContinueOnItemLoad(function()
-				itemsLoadedCount = itemsLoadedCount + 1
-				local itemName, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(lootInfo.itemID)
-				local itemType = invType[itemEquipLoc]
-				if itemType and IsEquippableItem(lootInfo.itemID) and selectedArmorTypes[itemType] then
-					table.insert(itemData, {
-							name = itemName,
-							filterType = filterTypes[itemType],
-							itemID = lootInfo.itemID,
-					})
-					if itemType == 10 and (specID == 0 or CanDualWield[specID]) then
-						table.insert(itemData, {
-								name = itemName,
-								filterType = filterTypes[itemType+1],
-								itemID = lootInfo.itemID,
-						})
-					end
-				end
-				if itemsLoadedCount == itemCount then
-					ItemExporter:SortItems(itemData)
-				end
-		end)
-	end
-end
-
 local function CreateItemStrings(itemData)
 	local items = {}
 	for _, item in ipairs(itemData) do
@@ -131,12 +103,41 @@ end
 
 -- fetch itemIDs function
 function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)
-	self:DisableEJ()
+	ItemExporter:DisableEJ()
 	local itemData = {}
 	local itemCount = 0
 	local itemsLoadedCount = 0
 	local classFilter, specFilter = EJ_GetLootFilter()
 	local classID, specID = ClassSpecInfo.classID, ClassSpecInfo.specID
+	
+	--fetch itemInfo function
+	local function AddItemData(lootInfo)
+		if lootInfo and lootInfo.itemID then
+			local item = Item:CreateFromItemID(lootInfo.itemID)
+			item:ContinueOnItemLoad(function()
+				itemsLoadedCount = itemsLoadedCount + 1
+				local itemName, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(lootInfo.itemID)
+				local itemType = invType[itemEquipLoc]
+				if itemType and IsEquippableItem(lootInfo.itemID) and selectedArmorTypes[itemType] then
+					table.insert(itemData, {
+						name = itemName,
+						filterType = filterTypes[itemType],
+						itemID = lootInfo.itemID,
+						})
+					if itemType == 10 and (specID == 0 or CanDualWield[specID]) then
+						table.insert(itemData, {
+							name = itemName,
+							filterType = filterTypes[itemType+1],
+							itemID = lootInfo.itemID,
+						})
+					end
+				end
+				if itemsLoadedCount == itemCount then
+					ItemExporter:SortItems(itemData)
+				end
+			end)
+		end
+	end
 	
 	-- Iterate dungeons
 	for _, instanceID in ipairs(selectedDungeons) do
@@ -146,7 +147,7 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
 		itemCount = itemCount + EJ_GetNumLoot()
 		for i = 1, EJ_GetNumLoot() do
 			local lootInfo = C_EncounterJournal.GetLootInfoByIndex(i)
-			addItemDataToTable(itemData, lootInfo)
+			AddItemData(lootInfo)
 		end
 	end
 	
@@ -158,7 +159,7 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
 			itemCount = itemCount + EJ_GetNumLoot()
 			for i = 1, EJ_GetNumLoot() do
 				local lootInfo = C_EncounterJournal.GetLootInfoByIndex(i)
-				addItemDataToTable(itemData, lootInfo)
+				AddItemData(lootInfo)
 			end
 		end
 	end
@@ -169,13 +170,13 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
 		for slot=1, 15, 1 do
 			for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
 				if key == 1 then
-					addItemDataToTable(itemData, itemInfo)
+					AddItemData(itemInfo)
 				end
 			end
 		end
 	end
 	
 	EJ_SetLootFilter(classFilter, specFilter)
-	self:ReEnableEJ()
+	ItemExporter:ReEnableEJ()
 end
 
