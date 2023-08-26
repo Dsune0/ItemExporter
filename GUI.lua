@@ -201,6 +201,9 @@ function ItemExporter:GetMainFrame(text)
     end)
     f:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
       self:StopMovingOrSizing()
+	  if ItemExportEditBox then
+		ItemExportEditBox:SetFocus()
+	  end
     end)
 
     -- scroll frame
@@ -217,6 +220,8 @@ function ItemExporter:GetMainFrame(text)
     eb:SetAutoFocus(true)
     eb:SetFontObject("ChatFontNormal")
     eb:SetScript("OnEscapePressed", function() f:Hide() end)
+	eb:SetScript("OnEditFocusGained", function(self) self:EnableKeyboard(true) end)
+	eb:SetScript("OnEditFocusLost", function(self) self:EnableKeyboard(false) end)
     sf:SetScrollChild(eb)
 
     -- resizing
@@ -240,6 +245,7 @@ function ItemExporter:GetMainFrame(text)
         f:StopMovingOrSizing()
         self:GetHighlightTexture():Show()
         eb:SetWidth(sf:GetWidth())
+		eb:SetFocus()
     end)
 
     ItemExportFrame = f
@@ -317,13 +323,21 @@ function ItemExporter:ToggleGUI()
 		
 		self.frame.frame:SetResizeBounds(500, 785)
 		self.frame.frame:SetClampedToScreen(true)
-        self.frame.frame:SetScript("OnKeyDown", function(self, key)
-            if key == "ESCAPE" then
-                self:Hide()
-            end
-        end)
+		if InCombatLockdown() then
+			self.frame.frame:EnableKeyboard(false)
+		else
+			self.frame.frame:SetPropagateKeyboardInput(true)
+			self.frame.frame:SetScript("OnKeyDown", function(self, key)
+				if key == "ESCAPE" and self:GetFrameLevel() == 100 then
+					if not InCombatLockdown() then
+						self:SetPropagateKeyboardInput(false)
+					end
+					AceGUI:Release(ItemExporter.frame)
+				end
+			end)
+		end
+		
     else
-        AceGUI:Release(self.frame)
-        self.frame = nil
+		AceGUI:Release(self.frame)
     end
 end
