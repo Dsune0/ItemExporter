@@ -2,7 +2,7 @@ local _, ItemExporter = ...
 local L = ItemExporter.L
 local AceGUI = LibStub("AceGUI-3.0")
 
-local armorCheckboxes, instanceCheckboxes = {}, {}
+local armorCheckboxes, contentCheckboxes = {}, {}
 local armorTypes = ItemExporter.armorTypes
 local ClassSpecInfo = {}
 local firstRun
@@ -44,9 +44,8 @@ local function DrawContent(container, contentData, contentType)
                 checkbox:SetUserData("instanceID", raid.instanceID)
                 checkbox:SetUserData("encounterID", boss.encounterID)
                 raidGroup:AddChild(checkbox)
-                table.insert(instanceCheckboxes, checkbox)
+                table.insert(contentCheckboxes, checkbox)
             end
-
             container:AddChild(raidGroup)
         end
     elseif contentType == "dungeons" then
@@ -58,10 +57,19 @@ local function DrawContent(container, contentData, contentType)
             checkbox:SetValue(true)
             checkbox:SetUserData("instanceID", dungeon.instanceID)
             dungeonGroup:AddChild(checkbox)
-            table.insert(instanceCheckboxes, checkbox)
+            table.insert(contentCheckboxes, checkbox)
         end
-
-        container:AddChild(dungeonGroup)
+		container:AddChild(dungeonGroup)
+	elseif contentType == "tierset" then
+		local tierGroup = CreateGroup()
+		local tierset = contentData
+		tierGroup:AddChild(CreateLabel(tierset.label))
+		local checkbox = CreateCheckbox(tierset.name)
+		checkbox:SetValue(true)
+		checkbox:SetUserData("tierset", tierset.setID)
+		tierGroup:AddChild(checkbox)
+		table.insert(contentCheckboxes, checkbox)
+		container:AddChild(tierGroup)
     end
 end
 
@@ -118,9 +126,7 @@ local function CreateDropdowns(classDropdown, specDropdown)
 			ClassSpecInfo.specID = key
 		end
     end)
-	
 end
-
 
 local function DrawArmorTypes(container)
 	armorCheckboxes = {}
@@ -131,7 +137,7 @@ local function DrawArmorTypes(container)
         container:AddChild(checkbox)
         table.insert(armorCheckboxes, checkbox)
     end
-	CreateToggleAllButton(container, L["Toggle all armortypes"], armorCheckboxes)
+	CreateToggleAllButton(container, L["Toggle All"], armorCheckboxes)
 end
 
 local function CreateItemLevelSlider()
@@ -146,7 +152,7 @@ local function CreateItemLevelSlider()
 end
 
 
-local function CreateTabGroup(raids, dungeons)
+local function CreateTabGroup(raids, dungeons, tierset)
     local tabGroup = AceGUI:Create("TabGroup")
     tabGroup:SetFullWidth(true)
     tabGroup:SetFullHeight(true)
@@ -155,22 +161,28 @@ local function CreateTabGroup(raids, dungeons)
         {text = ALL, value = "all"}, 
         {text = RAIDS, value = "raids"}, 
         {text = DUNGEONS, value = "dungeons"},
+		{text = L["Tierset"], value = "tierset"},
     })
 		
     tabGroup:SetCallback("OnGroupSelected", function(container, event, group)
         container:ReleaseChildren()
 		local itemLevelSlider = CreateItemLevelSlider()
 		container:AddChild(itemLevelSlider)
-        instanceCheckboxes = {}
+        contentCheckboxes = {}
         if group == "all" then
             DrawContent(container, raids, "raids")
             DrawContent(container, dungeons, "dungeons")
+			DrawContent(container, tierset, "tierset")
+			CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
         elseif group == "raids" then
             DrawContent(container, raids, "raids")
+			CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
         elseif group == "dungeons" then
             DrawContent(container, dungeons, "dungeons")
+			CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
+		elseif group == "tierset" then
+			DrawContent(container, tierset, "tierset")
         end
-		CreateToggleAllButton(container, L["Toggle all Instances"], instanceCheckboxes)
     end)
 
     return tabGroup
@@ -260,12 +272,17 @@ local function ExportButton()
     local selectedDungeons = {}
     local selectedBosses = {}
 	local selectedArmorTypes = {}
+	local selectedTierset = {}
 	
-    for _, checkbox in ipairs(instanceCheckboxes) do
+    for _, checkbox in ipairs(contentCheckboxes) do
         if checkbox:GetValue() then
             local instanceID = checkbox:GetUserData("instanceID")
             local encounterID = checkbox:GetUserData("encounterID")
+			local setID = checkbox:GetUserData("tierset")
             
+			if setID then
+				table.insert(selectedTierset, setID)
+			end
             if encounterID then
                 if not selectedBosses[instanceID] then
                     selectedBosses[instanceID] = {}
@@ -284,23 +301,23 @@ local function ExportButton()
 		end
     end
 
-    ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes)
+    ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)
 	if not firstRun then
 		firstRun = true
-		C_Timer.After(0.1, function() ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes)end)
+		C_Timer.After(0.1, function() ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)end)
 	end
 end
 
 
 function ItemExporter:ToggleGUI()
     if not self.frame then
-        local raids, dungeons = self:GetLatestContentInfo()
+        local raids, dungeons, tierset = self:GetLatestContentInfo()
         self.frame = AceGUI:Create("Frame")
         self.frame:SetTitle(L["ItemExporter"])
         self.frame:SetStatusText(L["Export itemstrings to SimulationCraft format"])
         self.frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) self.frame = nil end)
         self.frame:SetWidth(645)
-        self.frame:SetHeight(785)
+        self.frame:SetHeight(800)
         self.frame:SetLayout("Flow")
 
         local classDropdown = AceGUI:Create("Dropdown")
@@ -312,7 +329,7 @@ function ItemExporter:ToggleGUI()
         exportButton:SetWidth(200)
         exportButton:SetCallback("OnClick", ExportButton)
 		
-		local tabGroup = CreateTabGroup(raids, dungeons)
+		local tabGroup = CreateTabGroup(raids, dungeons, tierset)
 		
 		self.frame:AddChild(classDropdown)
 		self.frame:AddChild(specDropdown)
@@ -321,7 +338,7 @@ function ItemExporter:ToggleGUI()
 		self.frame:AddChild(tabGroup)	
 		tabGroup:SelectTab("all")
 		
-		self.frame.frame:SetResizeBounds(500, 785)
+		self.frame.frame:SetResizeBounds(500, 800)
 		self.frame.frame:SetClampedToScreen(true)
 		if InCombatLockdown() then
 			self.frame.frame:EnableKeyboard(false)
