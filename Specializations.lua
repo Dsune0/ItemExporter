@@ -72,8 +72,8 @@ ItemExporter.Specializations = {
     },
     [10] = {
         [268] = "Brewmaster",
+		[269] = "Windwalker",
         [270] = "Mistweaver",
-        [269] = "Windwalker"
     },
     [11] = {
         [102] = "Balance",
@@ -97,8 +97,12 @@ function ItemExporter:GetCurrentSpecialization()
     return specID
 end
 
-function ItemExporter:GetSpecializationsByClass(classID)
-    return self.Specializations[classID]
+function ItemExporter:GetSpecializationsByClassID(classID)
+	local specNames = {}
+	for key, name in pairs(self.Specializations[classID]) do
+		specNames[key] = GetSpecializationNameForSpecID(key)
+	end
+    return specNames
 end
 
 function ItemExporter:GetClassNameByID(classID)
