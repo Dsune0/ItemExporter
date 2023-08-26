@@ -1,12 +1,13 @@
 local _, ItemExporter = ...
 
+-- libs
 ItemExporter = LibStub("AceAddon-3.0"):NewAddon(ItemExporter, "ItemExporter", "AceConsole-3.0", "AceEvent-3.0")
-
 local LDB = LibStub("LibDataBroker-1.1")
 local icon = LibStub("LibDBIcon-1.0")
 local AceEvent = LibStub("AceEvent-3.0")
 local L = ItemExporter.L
 
+-- settings
 ItemExporter.db = LibStub("AceDB-3.0"):New("ItemExporterDB", {
 	profile = {
 		minimap = {
@@ -36,24 +37,28 @@ local dataObj = LDB:NewDataObject("ItemExporter", {
 --register minimap button
 icon:Register("ItemExporter", dataObj, ItemExporter.db.profile.minimap)
 
--- reenable EJ events
-function ItemExporter:ReEnableEJ()
-	EncounterJournal:RegisterEvent("EJ_LOOT_DATA_RECIEVED");
-	EncounterJournal:RegisterEvent("EJ_DIFFICULTY_UPDATE");
-	EncounterJournal:RegisterEvent("UNIT_PORTRAIT_UPDATE");
-	EncounterJournal:RegisterEvent("PORTRAITS_UPDATED");
-	EncounterJournal:RegisterEvent("SEARCH_DB_LOADED");
-	EncounterJournal:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED");
+-- EJ events
+local EJEvents = {
+	"EJ_LOOT_DATA_RECIEVED",
+	"EJ_DIFFICULTY_UPDATE",
+	"UNIT_PORTRAIT_UPDATE",
+	"PORTRAITS_UPDATED",
+	"SEARCH_DB_LOADED",
+	"UI_MODEL_SCENE_INFO_UPDATED"
+}
+
+-- prevent taint if user is using EJ
+function ItemExporter:DisableEJ()
+	for _, event in ipairs(EJEvents) do
+		EncounterJournal:UnregisterEvent(event)
+	end
 end
 
---disable EJ events to prevent taint
-function ItemExporter:DisableEJ()
-	EncounterJournal:UnregisterEvent("EJ_LOOT_DATA_RECIEVED");
-	EncounterJournal:UnregisterEvent("EJ_DIFFICULTY_UPDATE");
-	EncounterJournal:UnregisterEvent("UNIT_PORTRAIT_UPDATE");
-	EncounterJournal:UnregisterEvent("PORTRAITS_UPDATED");
-	EncounterJournal:UnregisterEvent("SEARCH_DB_LOADED");
-	EncounterJournal:UnregisterEvent("UI_MODEL_SCENE_INFO_UPDATED");
+-- enable EJ after we're done
+function ItemExporter:ReEnableEJ()
+	for _, event in ipairs(EJEvents) do
+		EncounterJournal:RegisterEvent(event)
+	end
 end
 
 

@@ -19,9 +19,9 @@ local function CreateCheckbox(name)
 	return checkbox
 end
 
-local function CreateLabel(Name)
+local function CreateLabel(name)
 	local label = AceGUI:Create("Label")
-	label:SetText(Name)
+	label:SetText(name)
 	label:SetFont("Fonts\\FRIZQT__.TTF", 14, "OUTLINE")
 	label:SetColor(1, 0.7, 0)
 	label:SetFullWidth(true)
