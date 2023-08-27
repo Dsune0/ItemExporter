@@ -189,39 +189,39 @@ local function CreateTabGroup(raids, dungeons, tierset)
 			CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
 		elseif group == "tierset" then
 			DrawContent(container, tierset, "tierset")
+			
 		end
 	end)
-
 	return tabGroup
 end
 
 -- editbox creation
 function ItemExporter:GetMainFrame(text)
 	--based on simulationcrafts editbox
-  if not ItemExportFrame then
+	if not ItemExportFrame then
 	local f = CreateFrame("Frame", "ItemExportFrame", UIParent, "DialogBoxFrame")
 	f:SetFrameStrata("FULLSCREEN_DIALOG")
 	f:ClearAllPoints()
 	f:SetPoint("CENTER")
 	f:SetSize(600, 600)
 	f:SetBackdrop({
-	  bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-	  edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-	  edgeSize = 16,
-	  insets = { left = 8, right = 8, top = 8, bottom = 8 },
+		bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+		edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+		edgeSize = 16,
+		insets = { left = 8, right = 8, top = 8, bottom = 8 },
 	})
 	f:SetMovable(true)
 	f:SetClampedToScreen(true)
 	f:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
-	  if button == "LeftButton" then
+		if button == "LeftButton" then
 		self:StartMoving()
-	  end
+		end
 	end)
 	f:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
-	  self:StopMovingOrSizing()
-	  if ItemExportEditBox then
+		self:StopMovingOrSizing()
+		if ItemExportEditBox then
 		ItemExportEditBox:SetFocus()
-	  end
+		end
 	end)
 
 	-- scroll frame
@@ -267,11 +267,11 @@ function ItemExporter:GetMainFrame(text)
 	end)
 
 	ItemExportFrame = f
-  end
-  ItemExportEditBox:SetText(text)
-  ItemExportEditBox:HighlightText()
-  ItemExportEditBox:Raise()
-  return ItemExportFrame
+	end
+	ItemExportEditBox:SetText(text)
+	ItemExportEditBox:HighlightText()
+	ItemExportEditBox:Raise()
+	return ItemExportFrame
 end
 
 -- export button function
@@ -324,7 +324,7 @@ function ItemExporter:ToggleGUI()
 		self.frame:SetStatusText(L["Export itemstrings to SimulationCraft format"])
 		self.frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) self.frame = nil end)
 		self.frame:SetWidth(645)
-		self.frame:SetHeight(800)
+		self.frame:SetHeight(840)
 		self.frame:SetLayout("Flow")
 
 		local classDropdown = AceGUI:Create("Dropdown")
@@ -345,7 +345,7 @@ function ItemExporter:ToggleGUI()
 		self.frame:AddChild(tabGroup)	
 		tabGroup:SelectTab("all")
 		
-		self.frame.frame:SetResizeBounds(500, 800)
+		self.frame.frame:SetResizeBounds(500, 840)
 		self.frame.frame:SetClampedToScreen(true)
 		if InCombatLockdown() then
 			self.frame.frame:EnableKeyboard(false)

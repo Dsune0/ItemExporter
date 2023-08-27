@@ -59,7 +59,7 @@ if GetLocale() == "koKR" then
 	L["Toggle All"] = "모두 토글"
 end
 
---  Chinese Simplified (zhCN)
+-- Chinese Simplified (zhCN)
 if GetLocale() == "zhCN" then
 	L["ItemExport"] = "项目导出"
 	L["ItemExporter"] = "项目导出器"
