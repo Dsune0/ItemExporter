@@ -317,6 +317,9 @@ end
 
 -- UI toggle function
 function ItemExporter:ToggleGUI()
+	if not IsAddOnLoaded("Blizzard_EncounterJournal") then
+		LoadAddOn("Blizzard_EncounterJournal")
+	end
 	if not self.frame then
 		local raids, dungeons, tierset = self:GetLatestContentInfo()
 		self.frame = AceGUI:Create("Frame")
