@@ -92,6 +92,66 @@ ItemExporter.Specializations = {
 	},
 }
 
+ItemExporter.ClassStats = {
+    [1] = {strength = true},
+    [2] = {intellect = true, strength = true},
+    [3] = {agility = true},
+    [4] = {agility = true},
+    [5] = {intellect = true},
+    [6] = {strength = true},
+    [7] = {intellect = true, agility = true},
+    [8] = {intellect = true},
+    [9] = {intellect = true},
+    [10] = {intellect = true, agility = true},
+    [11] = {intellect = true, agility = true},
+    [12] = {agility=true},
+    [13] = {intellect = true},
+}
+
+ItemExporter.SpecializationStats = {
+    [71] = {strength = true},  -- Arms Warrior
+    [72] = {strength = true},  -- Fury Warrior
+    [73] = {strength = true},  -- Protection Warrior
+    [65] = {intellect = true}, -- Holy Paladin
+    [66] = {strength = true},  -- Protection Paladin
+    [70] = {strength = true},  -- Retribution Paladin
+    [253] = {agility = true},  -- Beast Mastery Hunter
+    [254] = {agility = true},  -- Marksmanship Hunter
+    [255] = {agility = true},  -- Survival Hunter
+    [259] = {agility = true},  -- Assassination Rogue
+    [260] = {agility = true},  -- Outlaw Rogue
+    [261] = {agility = true},  -- Subtlety Rogue
+    [256] = {intellect = true},-- Discipline Priest
+    [257] = {intellect = true},-- Holy Priest
+    [258] = {intellect = true},-- Shadow Priest
+    [250] = {strength = true}, -- Blood Death Knight
+    [251] = {strength = true}, -- Frost Death Knight
+    [252] = {strength = true}, -- Unholy Death Knight
+    [262] = {intellect = true},-- Elemental Shaman
+    [263] = {agility = true},  -- Enhancement Shaman
+    [264] = {intellect = true},-- Restoration Shaman
+    [62] = {intellect = true}, -- Arcane Mage
+    [63] = {intellect = true}, -- Fire Mage
+    [64] = {intellect = true}, -- Frost Mage
+    [265] = {intellect = true},-- Affliction Warlock
+    [266] = {intellect = true},-- Demonology Warlock
+    [267] = {intellect = true},-- Destruction Warlock
+    [268] = {agility = true},  -- Brewmaster Monk
+    [269] = {agility = true},  -- Windwalker Monk
+    [270] = {intellect = true},-- Mistweaver Monk
+    [102] = {intellect = true},-- Balance Druid
+    [103] = {agility = true},  -- Feral Druid
+    [104] = {agility = true},  -- Guardian Druid
+    [105] = {intellect = true},-- Restoration Druid
+    [577] = {agility = true},  -- Havoc Demon Hunter
+    [581] = {agility = true},  -- Vengeance Demon Hunter
+    -- New Specializations (Comment or Update as appropriate)
+    [1467] = {intellect = true},-- Devastation Spec, Assumed as Caster
+    [1468] = {intellect = true},-- Preservation Spec, Assumed as Caster
+    [1473] = {intellect = true},-- Augmentation Spec, Assumed as Caster
+}
+
+
 function ItemExporter:GetCurrentSpecialization()
 	local specID = (GetSpecializationInfo(GetSpecialization()))
 	return specID

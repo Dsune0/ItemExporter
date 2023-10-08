@@ -168,10 +168,8 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
 	for _, setID in ipairs(selectedTierset) do
 		for slot=1, 15, 1 do
 			for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
-				if key == 1 then
-					itemCount = itemCount + 1
-					AddItemData(itemInfo)
-				end
+                itemCount = itemCount + 1
+                AddItemData(itemInfo)
 			end
 		end
 	end

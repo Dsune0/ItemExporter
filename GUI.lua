@@ -4,7 +4,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 -- constants
 local armorTypes = ItemExporter.armorTypes
-ItemExporter.selectedItemLevel = 447
+ItemExporter.selectedItemLevel = 489
 
 -- locals
 local ClassSpecInfo = {classID = 0, specID = 0}
@@ -78,8 +78,8 @@ end
 local function CreateItemLevelSlider()
 	local slider = AceGUI:Create("Slider")
 	slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
-	slider:SetSliderValues(402, 450, 1)
-	slider:SetValue(447)
+	slider:SetSliderValues(402, 489, 1)
+	slider:SetValue(489)
 	slider:SetCallback("OnValueChanged", function(self, event, value)
 	ItemExporter.selectedItemLevel = value
 	end)
@@ -326,8 +326,8 @@ function ItemExporter:ToggleGUI()
 		self.frame:SetTitle(L["ItemExporter"])
 		self.frame:SetStatusText(L["Export itemstrings to SimulationCraft format"])
 		self.frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) self.frame = nil end)
-		self.frame:SetWidth(645)
-		self.frame:SetHeight(840)
+		self.frame:SetWidth(800)
+		self.frame:SetHeight(1000)
 		self.frame:SetLayout("Flow")
 
 		local classDropdown = AceGUI:Create("Dropdown")
