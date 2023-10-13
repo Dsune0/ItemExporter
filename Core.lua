@@ -45,41 +45,42 @@ end
 
 -- EJ events
 local EJEvents = {
-	"EJ_LOOT_DATA_RECIEVED",
-	"EJ_DIFFICULTY_UPDATE",
-	"UNIT_PORTRAIT_UPDATE",
-	"PORTRAITS_UPDATED",
-	"SEARCH_DB_LOADED",
-	"UI_MODEL_SCENE_INFO_UPDATED"
+    "EJ_LOOT_DATA_RECIEVED",
+    "EJ_DIFFICULTY_UPDATE",
+    "UNIT_PORTRAIT_UPDATE",
+    "PORTRAITS_UPDATED",
+    "SEARCH_DB_LOADED",
+    "UI_MODEL_SCENE_INFO_UPDATED"
 }
 
 -- prevent taint if user is using EJ
 function ItemExporter:DisableEJ()
-	for _, event in ipairs(EJEvents) do
-		EncounterJournal:UnregisterEvent(event)
-	end
+    for _, event in ipairs(EJEvents) do
+        EncounterJournal:UnregisterEvent(event)
+    end
 end
 
 -- enable EJ after we're done
 function ItemExporter:ReEnableEJ()
-	for _, event in ipairs(EJEvents) do
-		EncounterJournal:RegisterEvent(event)
-	end
+    for _, event in ipairs(EJEvents) do
+        EncounterJournal:RegisterEvent(event)
+    end
 end
 
 
 -- Collect instance info
 function ItemExporter:GetLatestContentInfo()
-	ItemExporter:DisableEJ()
-	local latestTierIndex = EJ_GetNumTiers() - 1
-	EJ_SelectTier(latestTierIndex)
-	
-	local raids = {}
-	local dungeons = {}
-	local tierset = {}
-	
-	-- Collect raids
-	local instanceID, name, _, _, _, _, _, _, _, isRaid = EJ_GetInstanceByIndex(4, true)
+    ItemExporter:DisableEJ()
+    local latestTierIndex = EJ_GetNumTiers() - 1
+    EJ_SelectTier(latestTierIndex)
+
+    local raids = {}
+    local dungeons = {}
+    local tierset = {}
+    local craftedItems = ItemExporter.CraftedItems
+
+    -- Collect raids
+    local instanceID, name, _, _, _, _, _, _, _, isRaid = EJ_GetInstanceByIndex(4, true)
     local bosses = {}
     EJ_SelectInstance(instanceID)
     local bossIndex = 1
@@ -90,20 +91,20 @@ function ItemExporter:GetLatestContentInfo()
         bossIndex = bossIndex + 1
     end
     table.insert(raids, {instanceName = name, instanceID = instanceID, bosses = bosses})
-	
-	
-	-- Collect tierset ID
-	for _,info in pairs(C_TransmogSets.GetBaseSets()) do
-		for _,raid in ipairs(raids) do
-			if info.label and raid.instanceName and info.label == raid.instanceName then
-				tierset.setID = info.setID
-				tierset.name = info.name
-				tierset.label = L["Tierset"]
-			end
-		end
-	end
-	
-	-- temporary dawn of the infinite
+
+
+    -- Collect tierset ID
+    for _,info in pairs(C_TransmogSets.GetBaseSets()) do
+        for _,raid in ipairs(raids) do
+            if info.label and raid.instanceName and info.label == raid.instanceName then
+                tierset.setID = info.setID
+                tierset.name = info.name
+                tierset.label = L["Tierset"]
+            end
+        end
+    end
+
+    -- temporary dawn of the infinite
     local name = EJ_GetInstanceInfo(1209)
     table.insert(dungeons, {instanceName = name, instanceID = 1209})
 
@@ -130,11 +131,8 @@ function ItemExporter:GetLatestContentInfo()
     -- temporary Throne of the Tides	
     local name = EJ_GetInstanceInfo(65)
     table.insert(dungeons, {instanceName = name, instanceID = 65})
-    
-    
-	ItemExporter:ReEnableEJ()
-	return raids, dungeons, tierset
+
+
+    ItemExporter:ReEnableEJ()
+    return raids, dungeons, tierset, craftedItems
 end
-
-
-
