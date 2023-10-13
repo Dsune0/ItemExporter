@@ -61,19 +61,43 @@ local invType = {
 }
 
 -- specs that can dual wield weapons
-local CanDualWield = {
-	[72] = true,
-	[251] = true,
-	[577] = true,
-	[103] = true,
-	[269] = true,
-	[259] = true,
-	[260] = true,
-	[261] = true,
-	[263] = true
+local CanSpecDualWield = {
+	[72] = true, -- Warrior: Fury
+	[251] = true, -- Death Knight: Frost
+    [268] = true, -- Monk: Brewmaster
+	[269] = true, -- Monk: Windwalker
+	[259] = true, -- Rogue: Assassination
+	[260] = true, -- Rogue: Outlaw
+	[261] = true, -- Rogue: Subtlety
+	[263] = true, -- Shaman: Enhancement
+    [577] = true, -- Demon Hunter: Havoc
+    [581] = true, -- Demon Hunter: Vengeance
 }
 
--- helper functions
+local CanClassDualWield = {
+	[1] = true, -- Warrior
+	[4] = true, -- Rogue
+	[6] = true, -- Death Knight
+	[7] = true, -- Shaman
+	[10] = true, -- Monk
+	[12] = true, -- Demon Hunter
+}
+
+local function canDualWield(itemType, specID, classID)
+    -- Check if the item is main hand
+    if itemType == 10 then
+        if specID ~= 0 then
+            return CanSpecDualWield[specID] or false
+        elseif classID ~= 0 then
+            return CanClassDualWield[classID] or false
+        else
+            return true
+        end
+    else
+        return false  -- cannot dual wield
+    end
+end
+
 local function CreateItemStrings(itemData)
 	local items = {}
 	for _, item in ipairs(itemData) do
@@ -118,13 +142,13 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
 				itemsLoadedCount = itemsLoadedCount + 1
 				local itemName, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(lootInfo.itemID)
 				local itemType = invType[itemEquipLoc]
-				if itemType and IsEquippableItem(lootInfo.itemID) and selectedArmorTypes[itemType] then
+				if itemType and selectedArmorTypes[itemType] and IsEquippableItem(lootInfo.itemID) then
 					table.insert(itemData, {
 						name = itemName,
 						filterType = filterTypes[itemType],
 						itemID = lootInfo.itemID,
 						})
-					if itemType == 10 and (specID == 0 or CanDualWield[specID]) then
+					if canDualWield(itemType, specID, classID) then
 						table.insert(itemData, {
 							name = itemName,
 							filterType = filterTypes[itemType+1],

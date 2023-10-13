@@ -145,7 +145,6 @@ ItemExporter.SpecializationStats = {
     [105] = {intellect = true},-- Restoration Druid
     [577] = {agility = true},  -- Havoc Demon Hunter
     [581] = {agility = true},  -- Vengeance Demon Hunter
-    -- New Specializations (Comment or Update as appropriate)
     [1467] = {intellect = true},-- Devastation Spec, Assumed as Caster
     [1468] = {intellect = true},-- Preservation Spec, Assumed as Caster
     [1473] = {intellect = true},-- Augmentation Spec, Assumed as Caster

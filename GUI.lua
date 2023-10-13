@@ -122,6 +122,7 @@ local function DrawContent(container, contentData, contentType)
 			end
 			container:AddChild(raidGroup)
 		end
+
 	elseif contentType == "dungeons" then
 		local dungeonGroup = CreateGroup()
 		dungeonGroup:AddChild(CreateLabel(DUNGEONS))
@@ -134,6 +135,7 @@ local function DrawContent(container, contentData, contentType)
 			table.insert(contentCheckboxes, checkbox)
 		end
 		container:AddChild(dungeonGroup)
+
 	elseif contentType == "tierset" then
 		local tierGroup = CreateGroup()
 		local tierset = contentData
@@ -144,7 +146,20 @@ local function DrawContent(container, contentData, contentType)
 		tierGroup:AddChild(checkbox)
 		table.insert(contentCheckboxes, checkbox)
 		container:AddChild(tierGroup)
-	end
+
+    elseif contentType == "crafted" then
+       local craftedGroup = CreateGroup()
+       craftedGroup:AddChild(CreateLabel("Crafted Items"))
+       local craftedItems = CreateCheckbox("Crafted Items")
+       local embellishedItems = CreateCheckbox("Embellished Items")
+       craftedItems:SetValue(true)
+       embellishedItems:SetValue(true)
+       craftedGroup:AddChild(craftedItems)
+       craftedGroup:AddChild(embellishedItems)
+       table.insert(contentCheckboxes, craftedItems)
+       table.insert(contentCheckboxes, embellishedItems)
+       container:AddChild(craftedGroup)
+    end
 end
 
 local function DrawArmorTypes(container)
@@ -159,7 +174,7 @@ local function DrawArmorTypes(container)
 	CreateToggleAllButton(container, L["Toggle All"], armorCheckboxes)
 end
 
-local function CreateTabGroup(raids, dungeons, tierset)
+local function CreateTabGroup(raids, dungeons, tierset, crafteditems)
 	local tabGroup = AceGUI:Create("TabGroup")
 	tabGroup:SetFullWidth(true)
 	tabGroup:SetFullHeight(true)
@@ -169,6 +184,7 @@ local function CreateTabGroup(raids, dungeons, tierset)
 		{text = RAIDS, value = "raids"}, 
 		{text = DUNGEONS, value = "dungeons"},
 		{text = L["Tierset"], value = "tierset"},
+        {text = L["Crafted Items"], value = "crafted"},
 	})
 		
 	tabGroup:SetCallback("OnGroupSelected", function(container, event, group)
@@ -180,6 +196,7 @@ local function CreateTabGroup(raids, dungeons, tierset)
 			DrawContent(container, raids, "raids")
 			DrawContent(container, dungeons, "dungeons")
 			DrawContent(container, tierset, "tierset")
+            DrawContent(container, crafted, "crafted")
 			CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
 		elseif group == "raids" then
 			DrawContent(container, raids, "raids")
@@ -189,7 +206,8 @@ local function CreateTabGroup(raids, dungeons, tierset)
 			CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
 		elseif group == "tierset" then
 			DrawContent(container, tierset, "tierset")
-			
+        elseif group == "crafted" then
+            DrawContent(container, crafted, "crafted")
 		end
 	end)
 	return tabGroup
