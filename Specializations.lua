@@ -157,7 +157,7 @@ function ItemExporter:GetCurrentSpecialization()
 end
 
 function ItemExporter:GetSpecializationsByClassID(classID)
-	local specNames = {}
+	local specNames = {[0] = "All Specializations"}
 	for key, name in pairs(self.Specializations[classID]) do
 		specNames[key] = GetSpecializationNameForSpecID(key)
 	end
