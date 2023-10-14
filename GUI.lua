@@ -16,17 +16,6 @@ local firstRun
 local function CreateCheckbox(name)
     local checkbox = AceGUI:Create("CheckBox")
     checkbox:SetLabel(name)
-
-    checkbox:SetCallback("OnEnter", function(widget)
-        tooltip:SetOwner(widget.frame, "ANCHOR_TOP")
-        tooltip:SetText("This is my checkbox tooltip")
-        tooltip:Show()
-    end)
-
-    checkbox:SetCallback("OnLeave", function(widget)
-        tooltip:Hide()
-    end)
-
     return checkbox
 end
 
@@ -51,17 +40,17 @@ local function CreateDropdowns(classDropdown, specDropdown)
     local currentClassID = ItemExporter:GetCurrentClass()
     local specializations = ItemExporter:GetSpecializationsByClassID(currentClassID)
     local currentSpecID = ItemExporter:GetCurrentSpecialization()
-    
+
     ClassSpecInfo = {classID = currentClassID, specID = currentSpecID}
-    
+
     classDropdown:SetList(classDropdownValues)
     classDropdown:SetValue(currentClassID)
     classDropdown:SetLabel(CLASS)
-    
+
     specDropdown:SetList(specializations)
     specDropdown:SetValue(currentSpecID)
     specDropdown:SetLabel(SPECIALIZATION)
-    
+
     classDropdown:SetCallback("OnValueChanged", function(widget, event, key)
         if key and key ~= 0 then
             ClassSpecInfo.classID = key
@@ -77,7 +66,7 @@ local function CreateDropdowns(classDropdown, specDropdown)
             specDropdown:SetValue(0)
         end
     end)
-    
+
     specDropdown:SetCallback("OnValueChanged", function(widget, event, key)
         if ClassSpecInfo.specID then
             ClassSpecInfo.specID = key
@@ -190,13 +179,13 @@ local function CreateTabGroup(raids, dungeons, tierset, craftedItems)
     tabGroup:SetFullHeight(true)
     tabGroup:SetLayout("Flow")
     tabGroup:SetTabs({
-        {text = ALL, value = "all"}, 
-        {text = RAIDS, value = "raids"}, 
+        {text = ALL, value = "all"},
+        {text = RAIDS, value = "raids"},
         {text = DUNGEONS, value = "dungeons"},
         {text = L["Tierset"], value = "tierset"},
         {text = L["Crafted Items"], value = "crafted"},
     })
-        
+
     tabGroup:SetCallback("OnGroupSelected", function(container, event, group)
         container:ReleaseChildren()
         local itemLevelSlider = CreateItemLevelSlider()
@@ -308,13 +297,13 @@ local function ExportButton()
     local selectedBosses = {}
     local selectedArmorTypes = {}
     local selectedTierset = {}
-    
+
     for _, checkbox in ipairs(contentCheckboxes) do
         if checkbox:GetValue() then
             local instanceID = checkbox:GetUserData("instanceID")
             local encounterID = checkbox:GetUserData("encounterID")
             local setID = checkbox:GetUserData("tierset")
-            
+
             if setID then
                 table.insert(selectedTierset, setID)
             end
@@ -328,7 +317,7 @@ local function ExportButton()
             end
         end
     end
-    
+
     for _, checkbox in ipairs(armorCheckboxes) do
         if checkbox:GetValue() then
             local armorType = checkbox:GetUserData("armorType")
@@ -361,21 +350,21 @@ function ItemExporter:ToggleGUI()
         local classDropdown = AceGUI:Create("Dropdown")
         local specDropdown = AceGUI:Create("Dropdown")
         CreateDropdowns(classDropdown, specDropdown)
-        
+
         local exportButton = AceGUI:Create("Button")
         exportButton:SetText(L["Export"])
         exportButton:SetWidth(200)
         exportButton:SetCallback("OnClick", ExportButton)
-        
+
         local tabGroup = CreateTabGroup(raids, dungeons, tierset, craftedItems)
-        
+
         self.frame:AddChild(classDropdown)
         self.frame:AddChild(specDropdown)
         self.frame:AddChild(exportButton)
         DrawArmorTypes(self.frame)
         self.frame:AddChild(tabGroup)
         tabGroup:SelectTab("all")
-        
+
         self.frame.frame:SetResizeBounds(500, 840)
         self.frame.frame:SetClampedToScreen(true)
         if InCombatLockdown() then
