@@ -189,11 +189,13 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
     end
     
     -- Add tierset items
-    for _, setID in ipairs(selectedTierset) do
-        for slot=1, 15, 1 do
-            for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
-                itemCount = itemCount + 1
-                AddItemData(itemInfo)
+    if ItemExporter:GetCurrentClass() == classID then
+        for _, setID in ipairs(selectedTierset) do
+            for slot=1, 15, 1 do
+                for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
+                    itemCount = itemCount + 1
+                    AddItemData(itemInfo)
+                end
             end
         end
     end
