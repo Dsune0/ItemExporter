@@ -72,7 +72,7 @@ end
 -- Collect instance info
 function ItemExporter:GetLatestContentInfo()
 	ItemExporter:DisableEJ()
-	local latestTierIndex = EJ_GetNumTiers() - 1
+	local latestTierIndex = EJ_GetNumTiers()
 	EJ_SelectTier(latestTierIndex)
 	
 	local raids = {}
@@ -80,22 +80,37 @@ function ItemExporter:GetLatestContentInfo()
 	local tierset = {}
 	
 	-- Collect raids
-	local instanceID, name, _, _, _, _, _, _, _, isRaid = EJ_GetInstanceByIndex(4, true)
-    local bosses = {}
-    EJ_SelectInstance(instanceID)
-    local bossIndex = 1
-    while true do
-        local bossName, _, encounterID = EJ_GetEncounterInfoByIndex(bossIndex)
-        if not bossName then break end
-        table.insert(bosses, {name = bossName, encounterID = encounterID})
-        bossIndex = bossIndex + 1
-    end
-    table.insert(raids, {instanceName = name, instanceID = instanceID, bosses = bosses})
+	local index = 1
+	while true do
+		local instanceID, name, _, _, _, _, _, _, _, isRaid = EJ_GetInstanceByIndex(index, true)
+		if not instanceID then break end
+		if isRaid then
+			local bosses = {}
+			EJ_SelectInstance(instanceID)
+			local bossIndex = 1
+			while true do
+				local bossName, _, encounterID = EJ_GetEncounterInfoByIndex(bossIndex)
+				if not bossName then break end		
+				table.insert(bosses, {name = bossName, encounterID = encounterID})
+				bossIndex = bossIndex + 1
+			end
+			table.insert(raids, {instanceName = name, instanceID = instanceID, bosses = bosses})
+		end
+		index = index + 1
+	end
 	
+	-- Collect mythic+ dungeons
+	index = 1
+	while true do
+		local instanceID, name = EJ_GetInstanceByIndex(index, false)
+		if not instanceID then break end
+		table.insert(dungeons, {instanceName = name, instanceID = instanceID})
+		index = index + 1
+	end
 	
 	-- Collect tierset ID
 	for _,info in pairs(C_TransmogSets.GetBaseSets()) do
-		for _,raid in ipairs(raids) do
+		for _,raid in ipairs(raids) do		
 			if info.label and raid.instanceName and info.label == raid.instanceName then
 				tierset.setID = info.setID
 				tierset.name = info.name
@@ -104,38 +119,11 @@ function ItemExporter:GetLatestContentInfo()
 		end
 	end
 	
-	-- temporary dawn of the infinite
-    local name = EJ_GetInstanceInfo(1209)
-    table.insert(dungeons, {instanceName = name, instanceID = 1209})
-
-    -- temporary Atal'Dazar
-    local name = EJ_GetInstanceInfo(968)
-    table.insert(dungeons, {instanceName = name, instanceID = 968})
-
-    -- temporary Waycrest Manor	
-    local name = EJ_GetInstanceInfo(1021)
-    table.insert(dungeons, {instanceName = name, instanceID = 1021})
-
-    -- temporary Blackrook Hold	
-    local name = EJ_GetInstanceInfo(740)
-    table.insert(dungeons, {instanceName = name, instanceID = 740})
-
-    -- temporary Darkheart Thicket	
-    local name = EJ_GetInstanceInfo(762)
-    table.insert(dungeons, {instanceName = name, instanceID = 762})
-
-    -- temporary Everbloom	
-    local name = EJ_GetInstanceInfo(556)
-    table.insert(dungeons, {instanceName = name, instanceID = 556})
-
-    -- temporary Throne of the Tides	
-    local name = EJ_GetInstanceInfo(65)
-    table.insert(dungeons, {instanceName = name, instanceID = 65})
-    
-    
 	ItemExporter:ReEnableEJ()
 	return raids, dungeons, tierset
 end
+
+
 
 
 
