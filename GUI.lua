@@ -4,7 +4,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 -- constants
 local armorTypes = ItemExporter.armorTypes
-ItemExporter.selectedItemLevel = 489
+ItemExporter.selectedItemLevel = 528
 
 -- locals
 local ClassSpecInfo = {classID = 0, specID = 0}
@@ -77,8 +77,8 @@ end
 local function CreateItemLevelSlider()
     local slider = AceGUI:Create("Slider")
     slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
-    slider:SetSliderValues(402, 489, 1)
-    slider:SetValue(489)
+    slider:SetSliderValues(402, 540, 1)
+    slider:SetValue(528)
     slider:SetCallback("OnValueChanged", function(self, event, value)
     ItemExporter.selectedItemLevel = value
     end)
@@ -136,15 +136,16 @@ local function DrawContent(container, contentData, contentType)
         container:AddChild(dungeonGroup)
 
     elseif contentType == "tierset" then
-        local tierGroup = CreateGroup()
-        local tierset = contentData
-        tierGroup:AddChild(CreateLabel(tierset.label))
-        local checkbox = CreateCheckbox(tierset.name)
-        checkbox:SetValue(true)
-        checkbox:SetUserData("tierset", tierset.setID)
-        tierGroup:AddChild(checkbox)
-        table.insert(contentCheckboxes, checkbox)
-        container:AddChild(tierGroup)
+        for _, tierset in ipairs(contentData) do
+            local tierGroup = CreateGroup()
+            tierGroup:AddChild(CreateLabel(tierset.label))
+            local checkbox = CreateCheckbox(tierset.name)
+            checkbox:SetValue(true)
+            checkbox:SetUserData("tierset", tierset.setID)
+            tierGroup:AddChild(checkbox)
+            table.insert(contentCheckboxes, checkbox)
+            container:AddChild(tierGroup)
+        end
 
     elseif contentType == "crafted" then
        local craftedGroup = CreateGroup()
