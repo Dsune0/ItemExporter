@@ -73,7 +73,7 @@ end
 function ItemExporter:GetLatestContentInfo()
 	ItemExporter:DisableEJ()
 	local latestTierIndex = EJ_GetNumTiers()-1
-	EJ_SelectTier(latestTierIndex)
+        (latestTierIndex)
 	
 	local raids = {}
 	local dungeons = {}
@@ -104,9 +104,11 @@ function ItemExporter:GetLatestContentInfo()
 	while true do
 		local instanceID, name = EJ_GetInstanceByIndex(index, false)
         -- remove Dawn
-		if not instanceID or instanceID == 1209 then break end
-		table.insert(dungeons, {instanceName = name, instanceID = instanceID})
-		index = index + 1
+		if not instanceID then break end
+        if not instanceID == 1209 then
+            table.insert(dungeons, {instanceName = name, instanceID = instanceID})
+        end
+        index = index + 1
 	end
 	
 	-- Collect tierset ID
