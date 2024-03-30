@@ -73,7 +73,7 @@ end
 function ItemExporter:GetLatestContentInfo()
 	ItemExporter:DisableEJ()
 	local latestTierIndex = EJ_GetNumTiers()-1
-        (latestTierIndex)
+	EJ_SelectTier(latestTierIndex)
 	
 	local raids = {}
 	local dungeons = {}
