@@ -140,9 +140,9 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
             local item = Item:CreateFromItemID(lootInfo.itemID)
             item:ContinueOnItemLoad(function()
                 itemsLoadedCount = itemsLoadedCount + 1
-                local itemName, _, _, _, _, _, _, _, itemEquipLoc = GetItemInfo(lootInfo.itemID)
+                local itemName, _, _, _, _, _, _, _, itemEquipLoc = C_Item.GetItemInfo(lootInfo.itemID)
                 local itemType = invType[itemEquipLoc]
-                if itemType and selectedArmorTypes[itemType] and IsEquippableItem(lootInfo.itemID) then
+                if itemType and selectedArmorTypes[itemType] and C_Item.IsEquippableItem(lootInfo.itemID) then
                     table.insert(itemData, {
                         name = itemName,
                         filterType = filterTypes[itemType],
@@ -189,16 +189,16 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
     end
     
     -- Add tierset items
-    if ItemExporter:GetCurrentClass() == classID then
-        for _, setID in ipairs(selectedTierset) do
-            for slot=1, 15, 1 do
-                for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
-                    itemCount = itemCount + 1
-                    AddItemData(itemInfo)
+        if ItemExporter:GetCurrentClass() == classID then
+            for _, setID in ipairs(selectedTierset) do
+                for slot=1, 15, 1 do
+                    for key, itemInfo in ipairs(C_TransmogSets.GetSourcesForSlot(setID, slot)) do
+                        itemCount = itemCount + 1
+                        AddItemData(itemInfo)
+                    end
                 end
             end
         end
-    end
     
     EJ_SetLootFilter(classFilter, specFilter)
     ItemExporter:ReEnableEJ()
