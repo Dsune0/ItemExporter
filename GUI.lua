@@ -77,8 +77,8 @@ end
 local function CreateItemLevelSlider()
     local slider = AceGUI:Create("Slider")
     slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
-    slider:SetSliderValues(402, 540, 1)
-    slider:SetValue(528)
+    slider:SetSliderValues(571, 639, 1)
+    slider:SetValue(636)
     slider:SetCallback("OnValueChanged", function(self, event, value)
     ItemExporter.selectedItemLevel = value
     end)
