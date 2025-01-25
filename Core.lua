@@ -72,9 +72,9 @@ end
 -- Collect instance info
 function ItemExporter:GetLatestContentInfo()
 	ItemExporter:DisableEJ()
-	local latestTierIndex = EJ_GetNumTiers()-1
+	local latestTierIndex = EJ_GetNumTiers()
 	EJ_SelectTier(latestTierIndex)
-	
+    
 	local raids = {}
 	local dungeons = {}
 	local tierset = {}
@@ -103,11 +103,8 @@ function ItemExporter:GetLatestContentInfo()
 	index = 1
 	while true do
 		local instanceID, name = EJ_GetInstanceByIndex(index, false)
-        -- remove Dawn
 		if not instanceID then break end
-        if not instanceID == 1209 then
-            table.insert(dungeons, {instanceName = name, instanceID = instanceID})
-        end
+        table.insert(dungeons, {instanceName = name, instanceID = instanceID})
         index = index + 1
 	end
 	
@@ -115,7 +112,6 @@ function ItemExporter:GetLatestContentInfo()
     for _, info in pairs(C_TransmogSets.GetBaseSets()) do
         for _, raid in ipairs(raids) do		
             if info.label and raid.instanceName and info.label == raid.instanceName then
-                -- Create a new table for each match and insert it into tiersets
                 local match = {
                     setID = info.setID,
                     name = info.name,
