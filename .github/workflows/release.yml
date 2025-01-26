@@ -1,4 +1,4 @@
-name: ItemExporter
+name: Package Addon
 
 on:
   push:
@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install SVN (Subversion)
+        run: sudo apt update && sudo apt install subversion -y
 
       - name: Run the Packager
         run: |
