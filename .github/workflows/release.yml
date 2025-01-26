@@ -19,3 +19,17 @@ jobs:
         run: |
           chmod +x .release/release.sh
           ./.release/release.sh
+
+      - name: List files (debugging)
+        run: ls -R .release
+
+      - name: Upload Packaged Addon as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packaged-addon
+          path: .release/*.zip
+
+      - name: Upload ZIP to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: .release/*.zip
