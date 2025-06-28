@@ -4,7 +4,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 -- constants
 local armorTypes = ItemExporter.armorTypes
-ItemExporter.selectedItemLevel = 639
+ItemExporter.selectedItemLevel = 723
 
 -- locals
 local ClassSpecInfo = {classID = 0, specID = 0}
@@ -78,7 +78,7 @@ local function CreateItemLevelSlider()
     local slider = AceGUI:Create("Slider")
     slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
     slider:SetSliderValues(639, 900, 1)
-    slider:SetValue(678)
+    slider:SetValue(ItemExporter.selectedItemLevel)
     slider:SetCallback("OnValueChanged", function(self, event, value)
     ItemExporter.selectedItemLevel = value
     end)
@@ -339,6 +339,7 @@ function ItemExporter:ToggleGUI()
         C_AddOns.LoadAddOn("Blizzard_EncounterJournal")
     end
     if not self.frame then
+	
         local raids, dungeons, tierset = self:GetLatestContentInfo()
         self.frame = AceGUI:Create("Frame")
         self.frame:SetTitle(L["ItemExporter"])
