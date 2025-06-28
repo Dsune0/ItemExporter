@@ -1,4 +1,4 @@
-## Interface: 111000
+## Interface: 110200
 ## Title: ItemExporter
 ## Notes: Export itemstrings to Simcraft format
 ## Author: Oi
