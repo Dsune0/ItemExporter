@@ -4,7 +4,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 -- constants
 local armorTypes = ItemExporter.armorTypes
-ItemExporter.selectedItemLevel = 723
+ItemExporter.selectedItemLevel = 289
 
 -- locals
 local ClassSpecInfo = {classID = 0, specID = 0}
@@ -77,7 +77,7 @@ end
 local function CreateItemLevelSlider()
     local slider = AceGUI:Create("Slider")
     slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
-    slider:SetSliderValues(639, 900, 1)
+    slider:SetSliderValues(200, 320, 1)
     slider:SetValue(ItemExporter.selectedItemLevel)
     slider:SetCallback("OnValueChanged", function(self, event, value)
     ItemExporter.selectedItemLevel = value
@@ -386,3 +386,4 @@ function ItemExporter:ToggleGUI()
         AceGUI:Release(self.frame)
     end
 end
+
