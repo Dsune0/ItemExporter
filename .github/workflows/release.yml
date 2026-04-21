@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packaged-addon
-          path: .release/*.zip
+          path: ${{ github.workspace }}/.release/*.zip
           if-no-files-found: error
 
       - name: Upload ZIP to GitHub Release
