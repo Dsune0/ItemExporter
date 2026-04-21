@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,17 +24,20 @@ jobs:
           ./.release/release.sh
 
       - name: List files (debugging)
-        run: ls -R .release
+        run: |
+          ls -R .release || true
+          find . -maxdepth 3 -name "*.zip" -print
 
       - name: Upload Packaged Addon as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: packaged-addon
           path: .release/*.zip
+          if-no-files-found: error
 
       - name: Upload ZIP to GitHub Release
         uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
         with:
           files: .release/*.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
