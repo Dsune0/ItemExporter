@@ -2,7 +2,7 @@
 ## Title: ItemExporter
 ## Notes: Export itemstrings to Simcraft format
 ## Author: Oi
-## Version: 1.0
+## Version: 2.0
 ## IconTexture: 134332
 ## SavedVariables: ItemExporterDB
 
