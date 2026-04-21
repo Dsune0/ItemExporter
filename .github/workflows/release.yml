@@ -46,10 +46,11 @@ jobs:
           name: packaged-addon
           path: ${{ github.workspace }}/.release/*.zip
           if-no-files-found: error
+          include-hidden-files: true
 
       - name: Upload ZIP to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
-          files: .release/*.zip
+          files: ${{ github.workspace }}/.release/*.zip
           token: ${{ secrets.GH_PAT }}
