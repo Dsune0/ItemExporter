@@ -13,6 +13,11 @@ L["Export itemstrings to SimulationCraft format"] = "Export itemstrings to Simul
 L["Export"] = "Export"
 L["Toggle All"] = "Toggle All"
 L["Tierset"] = "Tierset"
+L["Upgrade Track"] = "Upgrade Track"
+L["Upgrade Level"] = "Upgrade Level"
+L["Export Grouping"] = "Export Grouping"
+L["Item Level Override"] = "Item Level Override"
+L["Item Level"] = "Item Level"
 
 -- German (deDE)
 if GetLocale() == "deDE" then

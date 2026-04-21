@@ -4,13 +4,12 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 -- constants
 local armorTypes = ItemExporter.armorTypes
-ItemExporter.selectedItemLevel = 289
 
 -- locals
 local ClassSpecInfo = {classID = 0, specID = 0}
 local armorCheckboxes = {}
 local contentCheckboxes = {}
-local firstRun
+local firstRun = false
 
 -- UI helper functions
 local function CreateCheckbox(name)
@@ -74,19 +73,164 @@ local function CreateDropdowns(classDropdown, specDropdown)
     end)
 end
 
-local function CreateItemLevelSlider()
-    local slider = AceGUI:Create("Slider")
-    slider:SetLabel(STAT_AVERAGE_ITEM_LEVEL)
-    slider:SetSliderValues(200, 320, 1)
-    slider:SetValue(ItemExporter.selectedItemLevel)
-    slider:SetCallback("OnValueChanged", function(self, event, value)
-    ItemExporter.selectedItemLevel = value
+local function GetUpgradeLevel(trackName, level)
+    local track = ItemExporter.UpgradeTracks[trackName]
+    local levelIndex = tonumber(level)
+    if not track then
+        return nil
+    end
+
+    return track.levels[levelIndex]
+end
+
+local function SetSelectedUpgrade(trackName, level)
+    local levelIndex = tonumber(level)
+    local upgrade = GetUpgradeLevel(trackName, level)
+    if not upgrade then
+        return
+    end
+
+    ItemExporter.selectedUpgradeTrack = trackName
+    ItemExporter.selectedUpgradeLevel = levelIndex
+    ItemExporter.selectedUpgradeBonusID = upgrade.bonusID
+end
+
+local function GetTrackList()
+    local tracks = {}
+
+    for _, trackName in ipairs(ItemExporter.UpgradeTrackOrder) do
+        tracks[trackName] = trackName
+    end
+
+    return tracks
+end
+
+local function GetUpgradeLevelList(trackName)
+    local track = ItemExporter.UpgradeTracks[trackName]
+    local levels = {}
+
+    if not track then
+        return levels
+    end
+
+    for _, upgrade in ipairs(track.levels) do
+        levels[upgrade.level] = string.format("%s %d/%d (%d)", track.name, upgrade.level, upgrade.max, upgrade.itemLevel)
+    end
+
+    return levels
+end
+
+local function CreateUpgradeDropdowns()
+    local trackDropdown = AceGUI:Create("Dropdown")
+    local levelDropdown = AceGUI:Create("Dropdown")
+
+    local function RefreshLevelDropdown(trackName, level)
+        if not trackName then
+            return
+        end
+
+        local selectedLevel = tonumber(level) or ItemExporter.selectedUpgradeLevel
+        if not GetUpgradeLevel(trackName, selectedLevel) then
+            selectedLevel = 1
+        end
+
+        levelDropdown:SetList(GetUpgradeLevelList(trackName))
+        levelDropdown:SetValue(selectedLevel)
+        SetSelectedUpgrade(trackName, selectedLevel)
+    end
+
+    trackDropdown:SetLabel(L["Upgrade Track"])
+    trackDropdown:SetList(GetTrackList(), ItemExporter.UpgradeTrackOrder)
+    trackDropdown:SetValue(ItemExporter.selectedUpgradeTrack)
+    trackDropdown:SetRelativeWidth(0.5)
+    trackDropdown:SetCallback("OnValueChanged", function(widget, event, key)
+        RefreshLevelDropdown(key)
     end)
-    return slider
+
+    levelDropdown:SetLabel(L["Upgrade Level"])
+    levelDropdown:SetRelativeWidth(0.5)
+    levelDropdown:SetCallback("OnValueChanged", function(widget, event, key)
+        if key then
+            SetSelectedUpgrade(ItemExporter.selectedUpgradeTrack, key)
+        end
+    end)
+
+    RefreshLevelDropdown(ItemExporter.selectedUpgradeTrack, ItemExporter.selectedUpgradeLevel)
+
+    return trackDropdown, levelDropdown
+end
+
+local function GetExportGroupingList()
+    local groupings = {}
+
+    for _, groupingKey in ipairs(ItemExporter.ExportGroupingOrder) do
+        groupings[groupingKey] = ItemExporter.ExportGroupings[groupingKey]
+    end
+
+    return groupings
+end
+
+local function CreateExportGroupingDropdown()
+    local dropdown = AceGUI:Create("Dropdown")
+
+    dropdown:SetLabel(L["Export Grouping"])
+    dropdown:SetList(GetExportGroupingList(), ItemExporter.ExportGroupingOrder)
+    dropdown:SetValue(ItemExporter.selectedExportGrouping)
+    dropdown:SetRelativeWidth(1)
+    dropdown:SetCallback("OnValueChanged", function(widget, event, key)
+        if key then
+            ItemExporter.selectedExportGrouping = key
+        end
+    end)
+
+    return dropdown
+end
+
+local function CreateItemLevelOverrideControls()
+    local checkbox = AceGUI:Create("CheckBox")
+    local editBox = AceGUI:Create("EditBox")
+
+    local function SetItemLevelOverride(text)
+        local itemLevel = tonumber(text)
+
+        if itemLevel and itemLevel > 0 then
+            ItemExporter.itemLevelOverride = math.floor(itemLevel)
+        elseif text == "" then
+            ItemExporter.itemLevelOverride = nil
+        end
+
+        return ItemExporter.itemLevelOverride
+    end
+
+    checkbox:SetLabel(L["Item Level Override"])
+    checkbox:SetValue(ItemExporter.itemLevelOverrideEnabled)
+    checkbox:SetRelativeWidth(0.5)
+    checkbox:SetCallback("OnValueChanged", function(widget, event, value)
+        ItemExporter.itemLevelOverrideEnabled = value and true or false
+        editBox:SetDisabled(not ItemExporter.itemLevelOverrideEnabled)
+    end)
+
+    editBox:SetLabel(L["Item Level"])
+    editBox:SetRelativeWidth(0.5)
+    editBox:SetDisabled(not ItemExporter.itemLevelOverrideEnabled)
+    editBox:SetText(ItemExporter.itemLevelOverride and tostring(ItemExporter.itemLevelOverride) or "")
+    editBox:SetCallback("OnEnterPressed", function(widget, event, text)
+        local itemLevel = SetItemLevelOverride(text)
+        widget:SetText(itemLevel and tostring(itemLevel) or "")
+    end)
+    editBox:SetCallback("OnTextChanged", function(widget, event, text)
+        SetItemLevelOverride(text)
+    end)
+
+    return checkbox, editBox
 end
 
 --checkbox toggling
 local function ToggleAllCheckboxes(checkboxes)
+    if not checkboxes[1] then
+        return
+    end
+
     local newState = not checkboxes[1]:GetValue()
     for _, checkbox in ipairs(checkboxes) do
         checkbox:SetValue(newState)
@@ -95,6 +239,10 @@ end
 
 -- checkbox creation
 local function CreateToggleAllButton(container, text, checkboxes)
+    if not checkboxes[1] then
+        return
+    end
+
     local button = AceGUI:Create("Button")
     button:SetText(text)
     button:SetRelativeWidth(1)
@@ -107,7 +255,7 @@ local function DrawContent(container, contentData, contentType)
     if not contentData then return end
 
     if contentType == "raids" then
-        for _, raid in pairs(contentData) do
+        for raidIndex, raid in ipairs(contentData) do
             local raidGroup = CreateGroup()
             raidGroup:AddChild(CreateLabel(raid.instanceName))
 
@@ -116,6 +264,9 @@ local function DrawContent(container, contentData, contentType)
                 checkbox:SetValue(true)
                 checkbox:SetUserData("instanceID", raid.instanceID)
                 checkbox:SetUserData("encounterID", boss.encounterID)
+                checkbox:SetUserData("raidName", raid.instanceName)
+                checkbox:SetUserData("bossName", boss.name)
+                checkbox:SetUserData("sourceOrder", raidIndex)
                 raidGroup:AddChild(checkbox)
                 table.insert(contentCheckboxes, checkbox)
             end
@@ -126,39 +277,32 @@ local function DrawContent(container, contentData, contentType)
         local dungeonGroup = CreateGroup()
         dungeonGroup:AddChild(CreateLabel(DUNGEONS))
 
-        for _, dungeon in pairs(contentData) do
+        for dungeonIndex, dungeon in ipairs(contentData) do
             local checkbox = CreateCheckbox(dungeon.instanceName)
             checkbox:SetValue(true)
             checkbox:SetUserData("instanceID", dungeon.instanceID)
+            checkbox:SetUserData("dungeonName", dungeon.instanceName)
+            checkbox:SetUserData("sourceOrder", dungeonIndex)
             dungeonGroup:AddChild(checkbox)
             table.insert(contentCheckboxes, checkbox)
         end
         container:AddChild(dungeonGroup)
 
     elseif contentType == "tierset" then
-        for _, tierset in ipairs(contentData) do
+        for tierIndex, tierset in ipairs(contentData) do
             local tierGroup = CreateGroup()
             tierGroup:AddChild(CreateLabel(tierset.label))
             local checkbox = CreateCheckbox(tierset.name)
             checkbox:SetValue(true)
             checkbox:SetUserData("tierset", tierset.setID)
+            checkbox:SetUserData("tierName", tierset.name)
+            checkbox:SetUserData("tierLabel", tierset.label)
+            checkbox:SetUserData("sourceOrder", tierIndex)
             tierGroup:AddChild(checkbox)
             table.insert(contentCheckboxes, checkbox)
             container:AddChild(tierGroup)
         end
 
-    elseif contentType == "crafted" then
-       local craftedGroup = CreateGroup()
-       craftedGroup:AddChild(CreateLabel("Crafted Items"))
-       local craftedItems = CreateCheckbox("Crafted Items")
-       local embellishedItems = CreateCheckbox("Embellished Items")
-       craftedItems:SetValue(true)
-       embellishedItems:SetValue(true)
-       craftedGroup:AddChild(craftedItems)
-       craftedGroup:AddChild(embellishedItems)
-       table.insert(contentCheckboxes, craftedItems)
-       table.insert(contentCheckboxes, embellishedItems)
-       container:AddChild(craftedGroup)
     end
 end
 
@@ -174,7 +318,38 @@ local function DrawArmorTypes(container)
     CreateToggleAllButton(container, L["Toggle All"], armorCheckboxes)
 end
 
-local function CreateTabGroup(raids, dungeons, tierset, craftedItems)
+local function DrawSelectedTab(container, group, raids, dungeons, tierset)
+    container:ReleaseChildren()
+
+    local trackDropdown, levelDropdown = CreateUpgradeDropdowns()
+    local itemLevelOverrideCheckbox, itemLevelOverrideEditBox = CreateItemLevelOverrideControls()
+
+    container:AddChild(trackDropdown)
+    container:AddChild(levelDropdown)
+    container:AddChild(itemLevelOverrideCheckbox)
+    container:AddChild(itemLevelOverrideEditBox)
+    container:AddChild(CreateExportGroupingDropdown())
+
+    contentCheckboxes = {}
+
+    if group == "all" or group == "raids" then
+        DrawContent(container, raids, "raids")
+    end
+
+    if group == "all" or group == "dungeons" then
+        DrawContent(container, dungeons, "dungeons")
+    end
+
+    if group == "all" or group == "tierset" then
+        DrawContent(container, tierset, "tierset")
+    end
+
+    if group == "all" or group == "raids" or group == "dungeons" then
+        CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
+    end
+end
+
+local function CreateTabGroup(raids, dungeons, tierset)
     local tabGroup = AceGUI:Create("TabGroup")
     tabGroup:SetFullWidth(true)
     tabGroup:SetFullHeight(true)
@@ -184,31 +359,10 @@ local function CreateTabGroup(raids, dungeons, tierset, craftedItems)
         {text = RAIDS, value = "raids"},
         {text = DUNGEONS, value = "dungeons"},
         {text = L["Tierset"], value = "tierset"},
-        {text = L["Crafted Items"], value = "crafted"},
     })
 
     tabGroup:SetCallback("OnGroupSelected", function(container, event, group)
-        container:ReleaseChildren()
-        local itemLevelSlider = CreateItemLevelSlider()
-        container:AddChild(itemLevelSlider)
-        contentCheckboxes = {}
-        if group == "all" then
-            DrawContent(container, raids, "raids")
-            DrawContent(container, dungeons, "dungeons")
-            DrawContent(container, tierset, "tierset")
-            DrawContent(container, craftedItems, "crafted")
-            CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
-        elseif group == "raids" then
-            DrawContent(container, raids, "raids")
-            CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
-        elseif group == "dungeons" then
-            DrawContent(container, dungeons, "dungeons")
-            CreateToggleAllButton(container, L["Toggle All"], contentCheckboxes)
-        elseif group == "tierset" then
-            DrawContent(container, tierset, "tierset")
-        elseif group == "crafted" then
-            DrawContent(container, craftedItems, "crafted")
-        end
+        DrawSelectedTab(container, group, raids, dungeons, tierset)
     end)
     return tabGroup
 end
@@ -217,75 +371,76 @@ end
 function ItemExporter:GetMainFrame(text)
     --based on simulationcrafts editbox
     if not ItemExportFrame then
-    local f = CreateFrame("Frame", "ItemExportFrame", UIParent, "DialogBoxFrame")
-    f:SetFrameStrata("FULLSCREEN_DIALOG")
-    f:ClearAllPoints()
-    f:SetPoint("CENTER")
-    f:SetSize(600, 600)
-    f:SetBackdrop({
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-        edgeSize = 16,
-        insets = { left = 8, right = 8, top = 8, bottom = 8 },
-    })
-    f:SetMovable(true)
-    f:SetClampedToScreen(true)
-    f:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
-        if button == "LeftButton" then
-        self:StartMoving()
-        end
-    end)
-    f:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
-        self:StopMovingOrSizing()
-        if ItemExportEditBox then
-        ItemExportEditBox:SetFocus()
-        end
-    end)
+        local f = CreateFrame("Frame", "ItemExportFrame", UIParent, "DialogBoxFrame")
+        f:SetFrameStrata("FULLSCREEN_DIALOG")
+        f:ClearAllPoints()
+        f:SetPoint("CENTER")
+        f:SetSize(600, 600)
+        f:SetBackdrop({
+            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+            edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+            edgeSize = 16,
+            insets = { left = 8, right = 8, top = 8, bottom = 8 },
+        })
+        f:SetMovable(true)
+        f:SetClampedToScreen(true)
+        f:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
+            if button == "LeftButton" then
+                self:StartMoving()
+            end
+        end)
+        f:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
+            self:StopMovingOrSizing()
+            if ItemExportEditBox then
+                ItemExportEditBox:SetFocus()
+            end
+        end)
 
-    -- scroll frame
-    local sf = CreateFrame("ScrollFrame", "ItemExportScrollFrame", f, "UIPanelScrollFrameTemplate")
-    sf:SetPoint("LEFT", 16, 0)
-    sf:SetPoint("RIGHT", -32, 0)
-    sf:SetPoint("TOP", 0, -32)
-    sf:SetPoint("BOTTOM", ItemExportFrameButton, "TOP", 0, 0)
+        -- scroll frame
+        local sf = CreateFrame("ScrollFrame", "ItemExportScrollFrame", f, "UIPanelScrollFrameTemplate")
+        sf:SetPoint("LEFT", 16, 0)
+        sf:SetPoint("RIGHT", -32, 0)
+        sf:SetPoint("TOP", 0, -32)
+        sf:SetPoint("BOTTOM", ItemExportFrameButton, "TOP", 0, 0)
 
-    -- edit box
-    local eb = CreateFrame("EditBox", "ItemExportEditBox", ItemExportScrollFrame)
-    eb:SetSize(sf:GetSize())
-    eb:SetMultiLine(true)
-    eb:SetAutoFocus(true)
-    eb:SetFontObject("ChatFontNormal")
-    eb:SetScript("OnEscapePressed", function() f:Hide() end)
-    eb:SetScript("OnEditFocusGained", function(self) self:EnableKeyboard(true) end)
-    eb:SetScript("OnEditFocusLost", function(self) self:EnableKeyboard(false) end)
-    sf:SetScrollChild(eb)
+        -- edit box
+        local eb = CreateFrame("EditBox", "ItemExportEditBox", ItemExportScrollFrame)
+        eb:SetSize(sf:GetSize())
+        eb:SetMultiLine(true)
+        eb:SetAutoFocus(true)
+        eb:SetFontObject("ChatFontNormal")
+        eb:SetScript("OnEscapePressed", function() f:Hide() end)
+        eb:SetScript("OnEditFocusGained", function(self) self:EnableKeyboard(true) end)
+        eb:SetScript("OnEditFocusLost", function(self) self:EnableKeyboard(false) end)
+        sf:SetScrollChild(eb)
 
-    -- resizing
-    f:SetResizable(true)
-    f:SetResizeBounds(150, 100, nil, nil)
-    local rb = CreateFrame("Button", "ItemExportResizeButton", f)
-    rb:SetPoint("BOTTOMRIGHT", -6, 7)
-    rb:SetSize(16, 16)
+        -- resizing
+        f:SetResizable(true)
+        f:SetResizeBounds(150, 100, nil, nil)
+        local rb = CreateFrame("Button", "ItemExportResizeButton", f)
+        rb:SetPoint("BOTTOMRIGHT", -6, 7)
+        rb:SetSize(16, 16)
 
-    rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-    rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+        rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+        rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+        rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
 
-    rb:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
-        if button == "LeftButton" then
-            f:StartSizing("BOTTOMRIGHT")
-            self:GetHighlightTexture():Hide() -- more noticeable
-        end
-    end)
-    rb:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
-        f:StopMovingOrSizing()
-        self:GetHighlightTexture():Show()
-        eb:SetWidth(sf:GetWidth())
-        eb:SetFocus()
-    end)
+        rb:SetScript("OnMouseDown", function(self, button) -- luacheck: ignore
+            if button == "LeftButton" then
+                f:StartSizing("BOTTOMRIGHT")
+                self:GetHighlightTexture():Hide()
+            end
+        end)
+        rb:SetScript("OnMouseUp", function(self, _) -- luacheck: ignore
+            f:StopMovingOrSizing()
+            self:GetHighlightTexture():Show()
+            eb:SetWidth(sf:GetWidth())
+            eb:SetFocus()
+        end)
 
-    ItemExportFrame = f
+        ItemExportFrame = f
     end
+
     ItemExportEditBox:SetText(text)
     ItemExportEditBox:HighlightText()
     ItemExportEditBox:Raise()
@@ -306,15 +461,29 @@ local function ExportButton()
             local setID = checkbox:GetUserData("tierset")
 
             if setID then
-                table.insert(selectedTierset, setID)
-            end
-            if encounterID then
-                if not selectedBosses[instanceID] then
-                    selectedBosses[instanceID] = {}
-                end
-                table.insert(selectedBosses[instanceID], encounterID)
-            else
-                table.insert(selectedDungeons, instanceID)
+                table.insert(selectedTierset, {
+                    setID = setID,
+                    name = checkbox:GetUserData("tierName"),
+                    label = checkbox:GetUserData("tierLabel"),
+                    sourceOrder = checkbox:GetUserData("sourceOrder"),
+                    order = #selectedTierset + 1,
+                })
+            elseif encounterID then
+                table.insert(selectedBosses, {
+                    instanceID = instanceID,
+                    encounterID = encounterID,
+                    raidName = checkbox:GetUserData("raidName"),
+                    bossName = checkbox:GetUserData("bossName"),
+                    sourceOrder = checkbox:GetUserData("sourceOrder"),
+                    order = #selectedBosses + 1,
+                })
+            elseif instanceID then
+                table.insert(selectedDungeons, {
+                    instanceID = instanceID,
+                    name = checkbox:GetUserData("dungeonName"),
+                    sourceOrder = checkbox:GetUserData("sourceOrder"),
+                    order = #selectedDungeons + 1,
+                })
             end
         end
     end
@@ -329,7 +498,9 @@ local function ExportButton()
     ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)
     if not firstRun then
         firstRun = true
-        C_Timer.After(0.1, function() ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)end)
+        C_Timer.After(0.1, function()
+            ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBosses, ClassSpecInfo, selectedArmorTypes, selectedTierset)
+        end)
     end
 end
 
@@ -338,8 +509,8 @@ function ItemExporter:ToggleGUI()
     if not select(2, C_AddOns.IsAddOnLoaded("Blizzard_EncounterJournal")) then
         C_AddOns.LoadAddOn("Blizzard_EncounterJournal")
     end
+
     if not self.frame then
-	
         local raids, dungeons, tierset = self:GetLatestContentInfo()
         self.frame = AceGUI:Create("Frame")
         self.frame:SetTitle(L["ItemExporter"])
@@ -358,7 +529,7 @@ function ItemExporter:ToggleGUI()
         exportButton:SetWidth(200)
         exportButton:SetCallback("OnClick", ExportButton)
 
-        local tabGroup = CreateTabGroup(raids, dungeons, tierset, craftedItems)
+        local tabGroup = CreateTabGroup(raids, dungeons, tierset)
 
         self.frame:AddChild(classDropdown)
         self.frame:AddChild(specDropdown)
@@ -378,6 +549,7 @@ function ItemExporter:ToggleGUI()
                     if not InCombatLockdown() then
                         self:SetPropagateKeyboardInput(false)
                     end
+
                     AceGUI:Release(ItemExporter.frame)
                 end
             end)

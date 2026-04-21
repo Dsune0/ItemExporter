@@ -83,7 +83,8 @@ ItemExporter.Specializations = {
     },
     [12] = {
         [577] = "Havoc",
-        [581] = "Vengeance"
+        [581] = "Vengeance",
+        [1480] = "Devourer"
     },
     [13] = {
         [1467] = "Devastation",
@@ -104,7 +105,7 @@ ItemExporter.ClassStats = {
     [9] = {intellect = true},
     [10] = {intellect = true, agility = true},
     [11] = {intellect = true, agility = true},
-    [12] = {agility=true},
+    [12] = {agility = true},
     [13] = {intellect = true},
 }
 
@@ -145,6 +146,7 @@ ItemExporter.SpecializationStats = {
     [105] = {intellect = true},-- Restoration Druid
     [577] = {agility = true},  -- Havoc Demon Hunter
     [581] = {agility = true},  -- Vengeance Demon Hunter
+    [1480] = {intellect = true},-- Devourer Demon Hunter
     [1467] = {intellect = true},-- Devastation Spec, Assumed as Caster
     [1468] = {intellect = true},-- Preservation Spec, Assumed as Caster
     [1473] = {intellect = true},-- Augmentation Spec, Assumed as Caster
@@ -158,9 +160,11 @@ end
 
 function ItemExporter:GetSpecializationsByClassID(classID)
     local specNames = {[0] = "All Specializations"}
-    for key, name in pairs(self.Specializations[classID]) do
+
+    for key in pairs(self.Specializations[classID] or {}) do
         specNames[key] = GetSpecializationNameForSpecID(key)
     end
+
     return specNames
 end
 
