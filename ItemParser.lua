@@ -30,71 +30,72 @@ ItemExporter.UpgradeTracks = {
     Adventurer = {
         name = "Adventurer",
         levels = {
-            {level = 1, max = 6, bonusID = 12769, itemLevel = 220},
-            {level = 2, max = 6, bonusID = 12770, itemLevel = 224},
-            {level = 3, max = 6, bonusID = 12771, itemLevel = 227},
-            {level = 4, max = 6, bonusID = 12772, itemLevel = 230},
-            {level = 5, max = 6, bonusID = 12773, itemLevel = 233},
-            {level = 6, max = 6, bonusID = 12774, itemLevel = 237},
+            {level = 1, max = 6, bonusID = 12817, itemLevel = 266},
+            {level = 2, max = 6, bonusID = 12818, itemLevel = 269},
+            {level = 3, max = 6, bonusID = 12819, itemLevel = 272},
+            {level = 4, max = 6, bonusID = 12820, itemLevel = 276},
+            {level = 5, max = 6, bonusID = 12821, itemLevel = 279},
+            {level = 6, max = 6, bonusID = 12822, itemLevel = 282},
         },
     },
     Veteran = {
         name = "Veteran",
         levels = {
-            {level = 1, max = 6, bonusID = 12777, itemLevel = 233},
-            {level = 2, max = 6, bonusID = 12778, itemLevel = 237},
-            {level = 3, max = 6, bonusID = 12779, itemLevel = 240},
-            {level = 4, max = 6, bonusID = 12780, itemLevel = 243},
-            {level = 5, max = 6, bonusID = 12781, itemLevel = 246},
-            {level = 6, max = 6, bonusID = 12782, itemLevel = 250},
+            {level = 1, max = 6, bonusID = 12825, itemLevel = 279},
+            {level = 2, max = 6, bonusID = 12826, itemLevel = 282},
+            {level = 3, max = 6, bonusID = 12827, itemLevel = 285},
+            {level = 4, max = 6, bonusID = 12828, itemLevel = 289},
+            {level = 5, max = 6, bonusID = 12829, itemLevel = 292},
+            {level = 6, max = 6, bonusID = 12830, itemLevel = 295},
         },
     },
     Champion = {
         name = "Champion",
         levels = {
-            {level = 1, max = 6, bonusID = 12785, itemLevel = 246},
-            {level = 2, max = 6, bonusID = 12786, itemLevel = 250},
-            {level = 3, max = 6, bonusID = 12787, itemLevel = 253},
-            {level = 4, max = 6, bonusID = 12788, itemLevel = 256},
-            {level = 5, max = 6, bonusID = 12789, itemLevel = 259},
-            {level = 6, max = 6, bonusID = 12790, itemLevel = 263},
+            {level = 1, max = 6, bonusID = 12833, itemLevel = 292},
+            {level = 2, max = 6, bonusID = 12834, itemLevel = 295},
+            {level = 3, max = 6, bonusID = 12835, itemLevel = 298},
+            {level = 4, max = 6, bonusID = 12836, itemLevel = 302},
+            {level = 5, max = 6, bonusID = 12837, itemLevel = 305},
+            {level = 6, max = 6, bonusID = 12838, itemLevel = 308},
         },
     },
     Hero = {
         name = "Hero",
         levels = {
-            {level = 1, max = 6, bonusID = 12793, itemLevel = 259},
-            {level = 2, max = 6, bonusID = 12794, itemLevel = 263},
-            {level = 3, max = 6, bonusID = 12795, itemLevel = 266},
-            {level = 4, max = 6, bonusID = 12796, itemLevel = 269},
-            {level = 5, max = 6, bonusID = 12797, itemLevel = 272},
-            {level = 6, max = 6, bonusID = 12798, itemLevel = 276},
+            {level = 1, max = 6, bonusID = 12841, itemLevel = 305},
+            {level = 2, max = 6, bonusID = 12842, itemLevel = 308},
+            {level = 3, max = 6, bonusID = 12843, itemLevel = 311},
+            {level = 4, max = 6, bonusID = 12844, itemLevel = 315},
+            {level = 5, max = 6, bonusID = 12845, itemLevel = 318},
+            {level = 6, max = 6, bonusID = 12846, itemLevel = 321},
         },
     },
     Myth = {
         name = "Myth",
         levels = {
-            {level = 1, max = 6, bonusID = 12801, itemLevel = 272},
-            {level = 2, max = 6, bonusID = 12802, itemLevel = 276},
-            {level = 3, max = 6, bonusID = 12803, itemLevel = 279},
-            {level = 4, max = 6, bonusID = 12804, itemLevel = 282},
-            {level = 5, max = 6, bonusID = 12805, itemLevel = 285},
-            {level = 6, max = 6, bonusID = 12806, itemLevel = 289},
+            {level = 1, max = 6, bonusID = 12849, itemLevel = 318},
+            {level = 2, max = 6, bonusID = 12850, itemLevel = 321},
+            {level = 3, max = 6, bonusID = 12851, itemLevel = 324},
+            {level = 4, max = 6, bonusID = 12852, itemLevel = 328},
+            {level = 5, max = 6, bonusID = 12853, itemLevel = 331},
+            {level = 6, max = 6, bonusID = 12854, itemLevel = 334},
         },
     },
 }
 
 ItemExporter.selectedUpgradeTrack = "Myth"
 ItemExporter.selectedUpgradeLevel = 6
-ItemExporter.selectedUpgradeBonusID = 12806
+ItemExporter.selectedUpgradeBonusID = 12854
 ItemExporter.selectedExportGrouping = "slot"
 ItemExporter.itemLevelOverrideEnabled = false
 ItemExporter.itemLevelOverride = nil
 
 ItemExporter.SeasonBonusIDs = {
-    mythicTag = 4795,
-    catalyst = 13577,
-    socket = 13668,
+    quality = 4786,
+    mythicTag = 4800,
+    catalyst = 13662,
+    socket = 13750,
 }
 
 ItemExporter.ExportGroupingOrder = {
@@ -211,14 +212,29 @@ local function AddBonusID(bonusIDs, bonusID)
     end
 end
 
-local function GetSeasonBonusIDs()
+local function GetBaseBonusIDs(item)
     local bonusIDs = {}
+    local source = item.source or {}
 
-    AddBonusID(bonusIDs, ItemExporter.SeasonBonusIDs.mythicTag)
-    AddBonusID(bonusIDs, ItemExporter.SeasonBonusIDs.catalyst)
+    if source.type == "tierset" then
+        if not GetItemLevelOverride() then
+            AddBonusID(bonusIDs, ItemExporter.selectedUpgradeBonusID)
+        end
 
-    if not GetItemLevelOverride() then
-        AddBonusID(bonusIDs, ItemExporter.selectedUpgradeBonusID)
+        AddBonusID(bonusIDs, ItemExporter.SeasonBonusIDs.catalyst)
+    else
+        AddBonusID(bonusIDs, ItemExporter.SeasonBonusIDs.quality)
+
+        local socketBonusIDs = GetSocketBonusIDs(item)
+        if socketBonusIDs then
+            for _, bonusID in ipairs(socketBonusIDs) do
+                AddBonusID(bonusIDs, bonusID)
+            end
+        end
+
+        if not GetItemLevelOverride() then
+            AddBonusID(bonusIDs, ItemExporter.selectedUpgradeBonusID)
+        end
     end
 
     return bonusIDs
@@ -233,13 +249,8 @@ local function GetSocketBonusIDs(item)
 end
 
 local function CreateBonusString(item)
-    local bonusIDs = GetSeasonBonusIDs()
-    local socketBonusIDs = GetSocketBonusIDs(item)
+    local bonusIDs = GetBaseBonusIDs(item)
     local bonusString = table.concat(bonusIDs, "/")
-
-    if socketBonusIDs and socketBonusIDs[1] then
-        bonusString = bonusString .. "/" .. table.concat(socketBonusIDs, "/")
-    end
 
     return bonusString
 end
