@@ -212,6 +212,14 @@ local function AddBonusID(bonusIDs, bonusID)
     end
 end
 
+local function GetSocketBonusIDs(item)
+    if item.filterType == "ring1" or item.filterType == "neck" then
+        return {ItemExporter.SeasonBonusIDs.socket}
+    end
+
+    return nil
+end
+
 local function GetBaseBonusIDs(item)
     local bonusIDs = {}
     local source = item.source or {}
@@ -238,14 +246,6 @@ local function GetBaseBonusIDs(item)
     end
 
     return bonusIDs
-end
-
-local function GetSocketBonusIDs(item)
-    if item.filterType == "ring1" or item.filterType == "neck" then
-        return {ItemExporter.SeasonBonusIDs.socket}
-    end
-
-    return nil
 end
 
 local function CreateBonusString(item)
