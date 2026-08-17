@@ -130,6 +130,18 @@ local filterTypes = {
     [13] = 'trinket1',
 }
 
+local catalystFilterTypes = {
+    head = true,
+    back = true,
+    hands = true,
+    feet = true,
+    chest = true,
+    waist = true,
+    shoulder = true,
+    wrist = true,
+    legs = true,
+}
+
 local filterTypeOrder = {}
 for index = 0, #filterTypes do
     filterTypeOrder[filterTypes[index]] = index
@@ -196,6 +208,10 @@ local function canDualWield(itemType, specID, classID)
     end
 
     return true
+end
+
+local function IsValidSourceSlot(itemType, source)
+    return source.type ~= "tierset" or catalystFilterTypes[filterTypes[itemType]]
 end
 
 local function GetItemLevelOverride()
@@ -515,7 +531,12 @@ function ItemExporter.GetItemsForSelectedInstances(selectedDungeons, selectedBos
             local itemName, _, _, _, _, _, _, _, itemEquipLoc = C_Item.GetItemInfo(itemID)
             local itemType = invType[itemEquipLoc]
 
-            if itemType and selectedArmorTypes[itemType] and C_Item.IsEquippableItem(itemID) then
+            if itemType
+                and selectedArmorTypes[itemType]
+                and IsValidSourceSlot(itemType, source)
+                and not C_Item.IsCosmeticItem(itemID)
+                and C_Item.IsEquippableItem(itemID)
+            then
                 table.insert(itemData, {
                     name = itemName,
                     filterType = filterTypes[itemType],
