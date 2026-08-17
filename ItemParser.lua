@@ -238,9 +238,8 @@ end
 
 local function GetBaseBonusIDs(item)
     local bonusIDs = {}
-    local source = item.source or {}
 
-    if source.type == "tierset" then
+    if catalystFilterTypes[item.filterType] then
         if not GetItemLevelOverride() then
             AddBonusID(bonusIDs, ItemExporter.selectedUpgradeBonusID)
         end
